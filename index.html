@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Угадай число</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #383838;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #ccc;
+    }
+
+    #output {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
+    #inputBox {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+      color: #434343;
+    }
+
+    #inputBox::placeholder {
+      color: #888;
+    }
+
+    #inputBox:focus {
+      border-color: #484848;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #434343;
+      color: #ccc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #484848;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Угадай число</h1>
+  <div id="output">Попробуй угадать число от 1 до 100 за 10 попыток</div>
+  <input type="number" id="inputBox" placeholder="Введи число" onkeydown="handleKeyPress(event)" max="100">
+  <button onclick="checkGuess()">Проверить</button>
+
+  <script>
+    let secretNumber, attempts;
+
+    function startGame() {
+      secretNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      document.getElementById('output').innerHTML = 'Попробуй угадать число от 1 до 100 за 10 попыток';
+      document.getElementById('inputBox').value = '';
+    }
+
+    function checkGuess() {
+      const userGuess = document.getElementById('inputBox').value;
+      const output = document.getElementById('output');
+
+      if (userGuess === '') {
+        output.innerHTML = 'Введи число';
+        return;
+      }
+
+      if (parseInt(userGuess) < 1 || parseInt(userGuess) > 100 || userGuess.includes('-')) {
+        output.innerHTML = 'Введи число от 1 до 100';
+        return;
+      }
+
+      attempts++;
+
+      if (parseInt(userGuess) === secretNumber) {
+        output.innerHTML = `Поздравляю! Ты угадал число ${secretNumber} за ${attempts} попыток!`;
+        setTimeout(startGame, 3000);
+      } else if (attempts === 10) {
+        output.innerHTML = `Ты не угадал число ${secretNumber} за 10 попыток. Попробуй еще раз!`;
+        setTimeout(startGame, 3000);
+      } else if (parseInt(userGuess) < secretNumber) {
+        output.innerHTML = 'Попробуй число больше';
+      } else {
+        output.innerHTML = 'Попробуй число меньше';
+      }
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        checkGuess();
+      }
+    }
+
+    startGame();
+  </script>
+
+</body>
+
+</html>
