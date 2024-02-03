@@ -2,122 +2,153 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Угадай число</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #383838;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #383838;
+            color: #ccc;
+        }
 
-    h1 {
-      color: #ccc;
-    }
+        header {
+            background-color: #383838;
+            color: #ccc;
+            padding: 20px 0;
+            text-align: center;
+        }
 
-    #output {
-      font-size: 18px;
-      margin-bottom: 10px;
-      color: #ccc;
-    }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
 
-    #inputBox {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      outline: none;
-      color: #434343;
-    }
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
 
-    #inputBox::placeholder {
-      color: #888;
-    }
+        nav a {
+            text-decoration: none;
+            color: #ccc;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
 
-    #inputBox:focus {
-      border-color: #484848;
-    }
+        .main-content {
+            max-width: 800px;
+            margin: 20px auto;
+        }
 
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #434343;
-      color: #ccc;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .game-post {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #434343;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, filter 0.3s;
+            border-radius: 10px;
+            cursor: pointer;
+        }
 
-    button:hover {
-      background-color: #484848;
-    }
-  </style>
+        .game-post.active {
+            border: 2px solid #434343;
+        }
+
+        .game-post:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+
+        h2 {
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #ccc;
+        }
+
+        a {
+            text-decoration: none;
+            color: #ccc;
+            background-color: #434343;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #484848;
+        }
+
+        footer {
+            background-color: #383838;
+            color: #ccc;
+            text-align: center;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+		.hidden-link {
+  display: none;
+}
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const gamePosts = document.querySelectorAll('.game-post');
+
+            gamePosts.forEach(post => {
+                post.addEventListener('click', function () {
+                    const link = post.querySelector('a');
+                    if (link) {
+                        window.location.href = link.href;
+                    }
+                });
+            });
+        });
+    </script>
+    <title>PSvalentine JavaScript Games</title>
 </head>
 
 <body>
 
-  <h1>Угадай число</h1>
-  <div id="output">Попробуй угадать число от 1 до 100 за 10 попыток</div>
-  <input type="number" id="inputBox" placeholder="Введи число" onkeydown="handleKeyPress(event)" max="100">
-  <button onclick="checkGuess()">Проверить</button>
+    <header>
+        <h1>PSvalentine JavaScript Games</h1>
+        <nav>
+            <ul>
+                <li><a href="./index.html">Главная</a></li>
+                <li><a href="./index.html">Проекты</a></li>
+                <li><a href="./index.html">Обо мне</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <script>
-    let secretNumber, attempts;
+    <section class="main-content">
+        <article class="game-post">
+            <h2>Старшая карта</h2>
+            <p>Победитель - тот, у кого старше карта</p>
+            <a href="./2.html" class="hidden-link"></a>
+        </article>
 
-    function startGame() {
-      secretNumber = Math.floor(Math.random() * 100) + 1;
-      attempts = 0;
-      document.getElementById('output').innerHTML = 'Попробуй угадать число от 1 до 100 за 10 попыток';
-      document.getElementById('inputBox').value = '';
-    }
+        <article class="game-post">
+            <h2>Угадай число</h2>
+            <p>Попробуй угадать число от 1 до 100 за 10 попыток</p>
+            <a href="./1.html" class="hidden-link"></a>
+        </article>
+    </section>
 
-    function checkGuess() {
-      const userGuess = document.getElementById('inputBox').value;
-      const output = document.getElementById('output');
-
-      if (userGuess === '') {
-        output.innerHTML = 'Введи число';
-        return;
-      }
-
-      if (parseInt(userGuess) < 1 || parseInt(userGuess) > 100 || userGuess.includes('-')) {
-        output.innerHTML = 'Введи число от 1 до 100';
-        return;
-      }
-
-      attempts++;
-
-      if (parseInt(userGuess) === secretNumber) {
-        output.innerHTML = `Поздравляю! Ты угадал число ${secretNumber} за ${attempts} попыток!`;
-        setTimeout(startGame, 3000);
-      } else if (attempts === 10) {
-        output.innerHTML = `Ты не угадал число ${secretNumber} за 10 попыток. Попробуй еще раз!`;
-        setTimeout(startGame, 3000);
-      } else if (parseInt(userGuess) < secretNumber) {
-        output.innerHTML = 'Попробуй число больше';
-      } else {
-        output.innerHTML = 'Попробуй число меньше';
-      }
-    }
-
-    function handleKeyPress(event) {
-      if (event.key === 'Enter') {
-        checkGuess();
-      }
-    }
-
-    startGame();
-  </script>
+    <footer>
+        <p>psvalentine.github.io &copy; 2024</p>
+    </footer>
 
 </body>
 

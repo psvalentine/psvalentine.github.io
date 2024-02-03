@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Старшая карта</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #383838;
+        }
+
+        #gameResult {
+            text-align: center;
+            color: #ccc;
+        }
+
+        .player-container,
+        .computer-container {
+            text-align: center;
+        }
+
+        img.card {
+            width: 100px;
+            margin: 10px;
+        }
+
+        h1,
+        .player-container p,
+        .computer-container p {
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #434343;
+            color: #ccc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #484848;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="gameResult"></div>
+
+    <script>
+        let roundCounter = 1;
+        let computerScore = 0;
+        let playerScore = 0;
+
+        function shuffleDeck() {
+            const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+            const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+            let deck = [];
+
+            for (const suit of suits) {
+                for (const value of values) {
+                    deck.push({
+                        suit,
+                        value
+                    });
+                }
+            }
+
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            return deck;
+        }
+
+        function playRound() {
+            const deck = shuffleDeck();
+
+            const playerCard = deck.pop();
+            const computerCard = deck.pop();
+
+            const resultElement = document.getElementById('gameResult');
+
+            resultElement.innerHTML = `
+                <h1>Старшая карта</h1>
+                <p id="roundText">Раунд: ${roundCounter}</p>
+                <p id="scoreText">Счет: К: ${computerScore} | И: ${playerScore}</p>
+                <p id="winnerText">Победитель - тот, у кого старше карта</p>
+                <div class="computer-container">
+                    <p>Компьютер:</p>
+                    <img class="card" src="images/${computerCard.suit}_${computerCard.value}.png" alt="${computerCard.value} of ${computerCard.suit}">
+                </div>
+                <div class="player-container">
+                    <p>Игрок:</p>
+                    <img class="card" src="images/${playerCard.suit}_${playerCard.value}.png" alt="${playerCard.value} of ${playerCard.suit}">
+                </div>
+            `;
+
+            if (getCardValue(playerCard) > getCardValue(computerCard)) {
+                resultElement.innerHTML += '<p style="color: #7FFF00;">Игрок выигрывает раунд!</p>';
+                playerScore++;
+            } else if (getCardValue(playerCard) < getCardValue(computerCard)) {
+                resultElement.innerHTML += '<p style="color: #FF4500;">Компьютер выигрывает раунд!</p>';
+                computerScore++;
+            } else {
+                resultElement.innerHTML += '<p style="color: #6495ED;">Ничья в этом раунде</p>';
+            }
+
+            resultElement.innerHTML += '<button onclick="playRound()">Раздать</button>';
+
+            const winnerText = document.getElementById('winnerText');
+            winnerText.style.display = 'none';
+
+            roundCounter++;
+        }
+
+        function getCardValue(card) {
+            const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            return values.indexOf(card.value) + 2;
+        }
+
+        function showGameTitle() {
+            const resultElement = document.getElementById('gameResult');
+            resultElement.innerHTML = '<h1>Старшая карта</h1><p id="winnerText">Победитель - тот, у кого старше карта</p>';
+            setTimeout(function () {
+                playRound();
+                resultElement.querySelector('#winnerText').style.display = 'none';
+            }, 3000);
+        }
+
+        showGameTitle();
+    </script>
+
+</body>
+
+</html>
