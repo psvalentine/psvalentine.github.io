@@ -1,11 +1,7 @@
 'use strict';  // этот код работает в современном режиме
 
-
-
 // element toggle function
 const elementToggleFunc = function (elem) { elem.classList.toggle("active"); }
-
-
 
 // sidebar variables
 const sidebar = document.querySelector("[data-sidebar]");
@@ -13,8 +9,6 @@ const sidebarBtn = document.querySelector("[data-sidebar-btn]");
 
 // sidebar toggle functionality for mobile
 sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
-
-
 
 // testimonials variables
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
@@ -52,8 +46,6 @@ for (let i = 0; i < testimonialsItem.length; i++) {
 // add click event to modal close button
 modalCloseBtn.addEventListener("click", testimonialsModalFunc);
 overlay.addEventListener("click", testimonialsModalFunc);
-
-
 
 // custom select variables
 const select = document.querySelector("[data-select]");
@@ -113,8 +105,6 @@ for (let i = 0; i < filterBtn.length; i++) {
 
 }
 
-
-
 // contact form variables
 const form = document.querySelector("[data-form]");
 const formInputs = document.querySelectorAll("[data-form-input]");
@@ -133,8 +123,6 @@ for (let i = 0; i < formInputs.length; i++) {
 
   });
 }
-
-
 
 // page navigation variables
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
@@ -156,4 +144,40 @@ for (let i = 0; i < navigationLinks.length; i++) {
     }
 
   });
+   
+  }
+
+// Add event listener to project container
+const projectListEl = document.querySelector(".project-list");
+const openProjectImgs = projectListEl.querySelectorAll(".project-img");
+const modalDialogEl = document.querySelector("dialog");
+const closeModalDialogEl = document.querySelector("#close");
+const modalImgEl = document.querySelector(".modal-body > img");
+
+// adding click event on every project
+for (let i = 0; i < openProjectImgs.length; i++) {
+  const openProjectImgEl = openProjectImgs[i];
+  openProjectImgEl
+    .querySelector(".project-item-icon-box")
+    .addEventListener("click", () => {
+      modalImgEl.src = openProjectImgEl.querySelector("img").src;
+      modalDialogEl.showModal();
+    });
+}
+
+// close btn handler
+closeModalDialogEl.addEventListener("click", (event) =>
+  modalCloseHandler(event, ["ION-ICON"])
+);
+
+// backdrop close handler
+modalDialogEl.addEventListener("click", (event) =>
+  modalCloseHandler(event, ["DIALOG"])
+);
+
+function modalCloseHandler(event, nodeName) {
+  if (nodeName.includes(event.target.nodeName)) {
+    modalImgEl.src = "";
+    modalDialogEl.close();
+  }
 }
