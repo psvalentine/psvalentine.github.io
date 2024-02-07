@@ -1,0 +1,325 @@
+<!-- Тип документа для браузера -->
+<!DOCTYPE html>
+
+<!-- Язык содержимого документа -->
+<html lang="en">
+
+<!-- Голова (начало) -->
+<head>
+
+<!-- Правильное отображение всех символов на странице -->
+<meta charset="UTF-8">
+
+<!-- Отображение страницы на мобильных устройствах -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Название сйта (на вкладке браузера) -->
+<title>Play Online Games</title>
+
+<!-- Стили CSS (начало) -->
+<style>
+
+/* Блок правил стилей (начало) */
+    /* Тело */
+	body {
+	/* Шрифт */
+    font-family: Arial, sans-serif;
+	/* Отступы по сторонам */
+	margin: 0;
+    /* Отступы внутри между содержимым */
+	padding: 0;
+	/* Цвет фона */
+    background-color: #383838;
+  }
+/* Блок правил стилей (конец) */
+  
+/* Блок правил стилей (начало) */
+   /* Класс "Галерея" */
+   .gallery {
+    /* Управление расположением и выравниванием "Гибкий контейнер" */
+	display: flex;
+	/* Перенос строк и колонок если не помещаются (горизонтально) */
+    flex-wrap: wrap;
+	/* Выравнивание элементов (по центру) */
+    justify-content: center;
+  }
+/* Блок правил стилей (конец) */
+  
+/* Блок правил стилей (начало) */
+/* Стили для Галереи */
+   /* Контейнер с картинкой (стиль) */
+   .gallery-item {
+    /* Отступы вокруг элемента */
+	margin: 10px;
+    /* Тень картинки  (смещение по горизонтали и вертикали; размытие; цвет, цвет, цвет, прозрачность) */
+	box-shadow: 0 0 5px rgba(0, 0, 0, 1);
+  }
+/* Блок правил стилей (конец) */
+  
+/* Блок правил стилей (начало) */
+   /* Картинка в контейнере (стиль) */
+   .gallery-item img {
+    /* Максимальная ширина изображения от ширины контейнера (с сохранением пропорции) */
+	max-width: 100%;
+    /* Высота изображения с сохранием пропорции при изменении ширины (автоматически) */
+	height: auto;
+    /* Отображение изображения как блочного элемента */
+	display: block;
+    /* Вид курсора при наведении на изображение (интерактивное и кликабельное изображение) */
+	cursor: pointer;
+	/* Изменения стиля элемента при наведении мыши (1. фильтр; 2. продолжительность; 3. плавная анимация) */
+	transition: filter 0.3s ease-in-out;
+  }
+    /* Стили и эффекты (картинка) в состоянии наведения мыши */
+	.gallery-item img:hover {
+    /* Увеличение яркости изображения на 20% */
+	filter: brightness(1.2);
+  }
+/* Блок правил стилей (конец) */
+
+/* Блок правил стилей (начало) */
+/* CSS для стилизации названия категории */
+.category-label {
+    position: absolute; /* Позиционирование элемента над изображением */
+    bottom: 0; /* Расположение над нижней границей изображения */
+    width: 100%; /* Ширина элемента, чтобы занимал всю ширину изображения */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
+    color: #c0c0c0; /* Цвет текста */
+    padding: 5px; /* Отступы (внутренние) вокруг текста */
+    margin: 0; /* Убираем  внешние отступы */
+    text-align: center; /* Выравнивание текста по центру */
+    box-sizing: border-box; /* Учитываем Отступы внутри ширины */
+}
+
+.gallery-item {
+    position: relative; /* Позиционирование элемента относительно его изначального местоположения в документе */
+}
+/* Блок правил стилей (конец) */
+ 
+<!-- Стили CSS (конец) -->
+</style>
+
+<!-- Голова (конец) -->
+</head>
+
+<!-- Тело (начало) -->
+<!-- 1. Внутренний отступ сверху элемента в 30 пикселей; 2. Внутренний отступ снизу в 30 пикселей -->
+<body style="padding-top: 30px; padding-bottom: 30px;">
+
+<!-- Заголовок сайта (являющийся ссылкой) -->
+<!-- Верхний блок (стили): 1. Фиксация сверху; 2. Ширина на весь экран; 3. Цвет фона блока; 4. Белый цвет текста; 5. Центрирование содержимого по горизонтали; 6. Внутренний отступ; 7. Индекс управления слоем -->
+<header style="position: fixed; top: 0; width: 100%; background-color: #383838; text-align: center; padding: 10px; z-index: 1000;">
+<!-- Заголовок первого уровня: 1. Нулевые отступы заголовка; 2. Открытие ссылки в той же вкладке; 3. Убирает подчеркивание ссылки и делает белый цвет текста; 4. Отображение текста ссылки -->
+    <h1 style="margin: 0;"><a href="./" target="_self" style="text-decoration: none; color: #c0c0c0;">Play Online Games</a></h1>
+</header>
+
+<!-- Контейнер класса "Галерея" -->
+<!-- 1. Отступ сверху в 30 пикселей; 2. Внутренний отступ внизу в 30 пикселей -->
+<div class="gallery" style="margin-top: 30px; padding-bottom: 30px;">
+<!-- Контейнер с Картинкой -->
+  <div class="gallery-item">
+    <!-- Изображение в качестве ссылки -->
+    <a href="https://psvalentine.github.io/Guess-the-number" target="_blank">
+      <!-- 1. Источник изображения (локально или ссылка); 2. Отображение текста если изображение не может быть загружено -->
+      <img src="./images/Guess-The-Number.jpg" alt="Guess The Number">
+    </a>
+	<p class="category-label">Made with ChatGPT</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="https://psvalentine.github.io/High-card" target="_blank">
+      <img src="./images/High-Card.jpg" alt="High Card" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+	</a>
+	<p class="category-label">Made with ChatGPT</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="https://gx.games/ru/games/p27v3d/wordle-/tracks/310561c1-a4a6-4c96-9960-3422c2bde7ff/" target="_blank"> 
+	  <img src="./images/Wordle.jpg" alt="Wordle" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Made with GameMaker</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="https://gx.games/ru/games/uxbfyf/blackvaljack-323/tracks/e772e1d6-1bdb-4d3e-8ffc-56a96e9ca369" target="_blank">
+	  <img src="./images/Blackjack.jpg" alt="Blackjack" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Made with GameMaker</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="https://psvalentine.github.io/Tower-Building" target="_blank"> 
+	  <img src="./images/Tower-Building.jpg" alt="Tower Building" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Open Source Projects</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 6" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 7" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 8" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 9" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+    <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 10" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 11" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 12" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 13" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 14" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 15" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 16" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+    <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 17" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 18" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 19" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 20" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 21" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 22" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 23" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+    <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 24" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 25" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+  <div class="gallery-item">
+    <a href="./" target="_blank"> 
+	  <img src="./images/Category.jpg" alt="Image 26" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+  
+   <div class="gallery-item">
+    <a href="./" target="_blank">
+	  <img src="./images/Category.jpg" alt="Image 27" loading="lazy">   <!-- Ленивую загрузка изображений, загрузка только при прокрутке страницы до них -->
+    </a>
+	<p class="category-label">Category</p>   <!-- Название категории -->
+  </div>
+ 
+<!-- Конец контейнера --> 
+</div>
+
+<!-- Нижний блок с копирайтом -->
+<!-- 1. Фиксация в нижней части экрана; 2. Расположение в самом низу; 3. Ширина на весь экран; 4. Цвет фона блока; 5. Белый цвет текста; 6. Центрирование содержимого по горизонтали; 7. Внутренний отступ -->
+<footer style="position: fixed; bottom: 0; width: 100%; background-color: #383838; color: #c0c0c0; text-align: center; padding: 10px; z-index: 1000;">
+<!--  Указание источника и копирайта -->
+   psvalentine.github.io &copy; 2024
+</footer>
+
+<!-- Тело (конец) -->
+</body>
+
+<!-- Конец HTML-документа -->
+</html>
