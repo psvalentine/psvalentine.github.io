@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крестики-нолики Ultimate</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --cell-bg: #16213e;
+            --cell-hover: #0f3460;
+            --text-color: #e94560;
+            --accent-x: #4cc9f0;
+            --accent-o: #f72585;
+            --text-main: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            user-select: none;
+        }
+
+        h1 { 
+            margin-bottom: 30px; 
+            font-weight: bold; 
+            letter-spacing: 2px;
+            background-color: var(--text-color);
+            padding: 15px 40px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 50px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Панель статистики */
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 20px;
+            min-width: 260px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .stat-value { font-weight: bold; color: var(--text-color); }
+
+        /* Настройки */
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            gap: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .control-group {
+            width: 100%;
+            text-align: center;
+            position: relative; /* Важно для позиционирования выпадающего списка */
+            z-index: 10;
+        }
+
+        /* Чтобы верхний список перекрывал нижний при раскрытии */
+        .control-group:first-of-type {
+            z-index: 20;
+        }
+
+        .control-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- КАСТОМНЫЕ ВЫПАДАЮЩИЕ СПИСКИ --- */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        /* Кнопка выбора (закрытый список) */
+        .dropdown-selected {
+            background-color: transparent;
+            border: 2px solid var(--text-color);
+            border-radius: 50px;
+            padding: 12px 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* Стрелочка */
+        .dropdown-selected:after {
+            content: "";
+            position: absolute;
+            right: 20px;
+            top: 45%;
+            width: 8px;
+            height: 8px;
+            border: 2px solid white;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg) translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+
+        /* Поворот стрелочки при открытии */
+        .custom-dropdown.open .dropdown-selected:after {
+            transform: rotate(135deg) translateY(-50%);
+            top: 50%;
+        }
+
+        .dropdown-selected:hover {
+            background-color: rgba(233, 69, 96, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        /* Выпадающее меню */
+        .dropdown-options {
+            position: absolute;
+            top: 115%;
+            left: 0;
+            right: 0;
+            background-color: #222238; /* Чуть светлее фона */
+            border: 2px solid var(--text-color);
+            border-radius: 20px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .custom-dropdown.open .dropdown-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Элемент списка */
+        .dropdown-option {
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+            color: #ddd;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background-color: var(--text-color);
+            color: white;
+            padding-left: 20px; /* Эффект сдвига */
+        }
+
+        .dropdown-option.selected {
+            background-color: rgba(233, 69, 96, 0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* --- КОНЕЦ КАСТОМНЫХ СПИСКОВ --- */
+
+        /* Доска */
+        .board {
+            display: grid;
+            gap: 10px;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .cell:hover { background-color: var(--cell-hover); transform: scale(1.02); }
+        
+        .cell.x { color: var(--accent-x); text-shadow: 0 0 10px rgba(76, 201, 240, 0.5); }
+        .cell.o { color: var(--accent-o); text-shadow: 0 0 10px rgba(247, 37, 133, 0.5); }
+        
+        .cell span {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            height: 30px;
+            color: #ddd;
+            font-weight: 500;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .btn-main {
+            margin-top: 25px;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: var(--text-color);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            transition: transform 0.1s, box-shadow 0.2s, background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+            background-color: #d63d56;
+        }
+
+        .btn-main:active { transform: translateY(0); }
+
+        /* Адаптивность */
+        @media (max-width: 750px) {
+            .game-container { flex-direction: column-reverse; align-items: center; gap: 30px; }
+            h1 { font-size: 1.2rem; padding: 12px 30px; margin-bottom: 20px; }
+            .board { gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Крестики-нолики</h1>
+
+    <div class="game-container">
+        <!-- Статистика и Настройки -->
+        <div class="stats-panel">
+            <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; font-size: 1.2rem; font-weight: bold;">СТАТИСТИКА</div>
+            <div class="stat-item">
+                <span id="label-player1">Игрок:</span>
+                <span class="stat-value" id="score-player">0</span>
+            </div>
+            <div class="stat-item">
+                <span id="label-player2">Бот:</span>
+                <span class="stat-value" id="score-bot">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Ничьи:</span>
+                <span class="stat-value" id="score-draw">0</span>
+            </div>
+
+            <div class="controls">
+                <!-- Кастомный выбор режима -->
+                <div class="control-group">
+                    <span class="control-label">Режим игры</span>
+                    <div class="custom-dropdown" id="mode-dropdown">
+                        <div class="dropdown-selected">Против Бота</div>
+                        <div class="dropdown-options">
+                            <div class="dropdown-option selected" data-value="pve">Против Бота</div>
+                            <div class="dropdown-option" data-value="pvp">Вдвоем</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кастомный выбор размера -->
+                <div class="control-group">
+                    <span class="control-label">Размер поля</span>
+                    <div class="custom-dropdown" id="size-dropdown">
+                        <div class="dropdown-selected">3 x 3</div>
+                        <div class="dropdown-options">
+                            <div class="dropdown-option selected" data-value="3">3 x 3</div>
+                            <div class="dropdown-option" data-value="4">4 x 4</div>
+                            <div class="dropdown-option" data-value="5">5 x 5</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Игровое поле -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <div class="status" id="status"></div>
+            <div class="board" id="board">
+                <!-- Ячейки генерируются JS -->
+            </div>
+            <button class="btn-main" id="restart-btn" onclick="startGame()">Новая игра</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- Конфигурация и состояние --- */
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const btnElement = document.getElementById('restart-btn');
+        
+        // Удаляем старые ссылки на select, теперь используем внутреннее состояние
+        let board = [];
+        let gameActive = false;
+        let isFirstLaunch = true;
+        let isPvP = false; // По умолчанию PvE
+        let boardSize = 3; // По умолчанию 3x3
+        
+        const X_SYMBOL = 'X';
+        const O_SYMBOL = 'O';
+        const COLOR_X = "#4cc9f0";
+        const COLOR_O = "#f72585";
+        
+        let humanSide = X_SYMBOL; 
+        let botSide = O_SYMBOL;
+        let currentPlayer = X_SYMBOL; 
+
+        let stats = { player1: 0, player2: 0, draw: 0 };
+
+        /* --- Логика Кастомных Выпадающих Списков --- */
+        function setupDropdowns() {
+            const dropdowns = document.querySelectorAll('.custom-dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                const selected = dropdown.querySelector('.dropdown-selected');
+                const options = dropdown.querySelectorAll('.dropdown-option');
+
+                // Открытие/Закрытие по клику
+                selected.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Закрываем другие списки
+                    dropdowns.forEach(d => {
+                        if (d !== dropdown) d.classList.remove('open');
+                    });
+                    dropdown.classList.toggle('open');
+                });
+
+                // Выбор опции
+                options.forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Визуальное обновление
+                        selected.innerText = option.innerText;
+                        options.forEach(o => o.classList.remove('selected'));
+                        option.classList.add('selected');
+                        dropdown.classList.remove('open');
+                        
+                        // Логика обновления игры
+                        const val = option.getAttribute('data-value');
+                        if (dropdown.id === 'mode-dropdown') {
+                            isPvP = (val === 'pvp');
+                            changeConfig();
+                        } else if (dropdown.id === 'size-dropdown') {
+                            boardSize = parseInt(val);
+                            changeConfig();
+                        }
+                    });
+                });
+            });
+
+            // Закрытие при клике вне списка
+            document.addEventListener('click', () => {
+                dropdowns.forEach(d => d.classList.remove('open'));
+            });
+        }
+
+        /* --- Инициализация и Сброс --- */
+        function initBoard() {
+            // Теперь boardSize берется из глобальной переменной
+            board = Array(boardSize * boardSize).fill("");
+            
+            // Настройка CSS сетки
+            boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+            boardElement.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
+            
+            // Очистка HTML
+            boardElement.innerHTML = '';
+            
+            // Адаптация размеров клеток под размер поля
+            let cellSize = 100; // default for 3x3
+            let fontSize = 3.5;
+
+            if (boardSize === 4) { cellSize = 80; fontSize = 2.5; }
+            if (boardSize === 5) { cellSize = 65; fontSize = 2; }
+
+            for (let i = 0; i < boardSize * boardSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.setAttribute('data-index', i);
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                cell.style.fontSize = `${fontSize}rem`;
+                cell.addEventListener('click', handleCellClick);
+                boardElement.appendChild(cell);
+            }
+        }
+
+        function changeConfig() {
+            // Полный сброс при смене настроек
+            stats = { player1: 0, player2: 0, draw: 0 };
+            document.getElementById('score-player').innerText = 0;
+            document.getElementById('score-bot').innerText = 0;
+            document.getElementById('score-draw').innerText = 0;
+            
+            // Теперь isPvP уже обновлен обработчиком списка
+            isFirstLaunch = true; 
+            
+            // Лейблы
+            document.getElementById('label-player1').innerText = isPvP ? "Игрок 1 (X):" : "Игрок:";
+            document.getElementById('label-player2').innerText = isPvP ? "Игрок 2 (O):" : "Бот:";
+            
+            btnElement.innerText = "Новая игра";
+            statusElement.innerText = "";
+            
+            initBoard(); // Перерисовка поля
+            gameActive = false;
+        }
+
+        function startGame() {
+            if (isFirstLaunch) {
+                btnElement.innerText = "Заново";
+                isFirstLaunch = false;
+            } else {
+                if (!isPvP) {
+                    humanSide = humanSide === X_SYMBOL ? O_SYMBOL : X_SYMBOL;
+                    botSide = botSide === X_SYMBOL ? O_SYMBOL : X_SYMBOL;
+                }
+            }
+
+            // Пересоздаем пустую доску (логически)
+            board = Array(boardSize * boardSize).fill("");
+            gameActive = true;
+            currentPlayer = X_SYMBOL; 
+
+            // Очистка UI
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.innerHTML = "";
+                cell.classList.remove('x', 'o');
+                cell.style.backgroundColor = "";
+            });
+
+            updateStatus();
+
+            if (!isPvP && botSide === X_SYMBOL) {
+                setTimeout(botTurn, 600);
+            }
+        }
+
+        function updateStatus() {
+            if (!gameActive) return;
+
+            // Определяем цвет на основе символа текущего игрока
+            const currentColor = currentPlayer === X_SYMBOL ? COLOR_X : COLOR_O;
+            statusElement.style.color = currentColor;
+
+            if (isPvP) {
+                statusElement.innerText = `Ход: ${currentPlayer === X_SYMBOL ? "Игрок 1 (X)" : "Игрок 2 (O)"}`;
+            } else {
+                if (currentPlayer === humanSide) {
+                    statusElement.innerText = `Ваш ход (${humanSide})`;
+                } else {
+                    statusElement.innerText = `Думает бот (${botSide})...`;
+                }
+            }
+        }
+
+        /* --- Игровой процесс --- */
+        function handleCellClick(e) {
+            const index = parseInt(e.target.getAttribute('data-index'));
+
+            if (board[index] !== "" || !gameActive) return;
+            if (!isPvP && currentPlayer !== humanSide) return;
+
+            makeMove(index, currentPlayer);
+        }
+
+        function makeMove(index, symbol) {
+            board[index] = symbol;
+            const cell = document.querySelector(`[data-index='${index}']`);
+            
+            cell.innerHTML = `<span>${symbol}</span>`;
+            cell.classList.add(symbol.toLowerCase());
+            
+            if (checkWin(board, symbol, boardSize)) {
+                endGame(false, symbol);
+            } else if (!board.includes("")) {
+                endGame(true);
+            } else {
+                currentPlayer = currentPlayer === X_SYMBOL ? O_SYMBOL : X_SYMBOL;
+                updateStatus();
+                
+                if (!isPvP && currentPlayer === botSide && gameActive) {
+                    setTimeout(botTurn, 500);
+                }
+            }
+        }
+
+        function endGame(isDraw, winnerSymbol = null) {
+            gameActive = false;
+            
+            if (isDraw) {
+                statusElement.innerText = "Ничья!";
+                statusElement.style.color = "#ddd";
+                stats.draw++;
+                document.getElementById('score-draw').innerText = stats.draw;
+            } else {
+                let isPlayer1Win;
+                // Цвет победы теперь зависит от символа победителя
+                const winColor = winnerSymbol === X_SYMBOL ? COLOR_X : COLOR_O;
+
+                if (isPvP) {
+                    isPlayer1Win = (winnerSymbol === X_SYMBOL);
+                    statusElement.innerText = isPlayer1Win ? "Победил Игрок 1!" : "Победил Игрок 2!";
+                } else {
+                    isPlayer1Win = (winnerSymbol === humanSide);
+                    statusElement.innerText = isPlayer1Win ? "Победа!" : "Поражение!";
+                }
+
+                statusElement.style.color = winColor;
+                
+                if (isPlayer1Win) {
+                    stats.player1++;
+                    document.getElementById('score-player').innerText = stats.player1;
+                } else {
+                    stats.player2++;
+                    document.getElementById('score-bot').innerText = stats.player2;
+                }
+                
+                // Подсветка выигрышной комбинации цветом победителя
+                highlightWin(winnerSymbol, winColor);
+            }
+            btnElement.innerText = "Заново";
+        }
+
+        /* --- Логика победы (Динамическая для любых размеров) --- */
+        function checkWin(currentBoard, player, size) {
+            // Горизонтали
+            for (let i = 0; i < size * size; i += size) {
+                if (checkLine(currentBoard, player, i, 1, size)) return true;
+            }
+            // Вертикали
+            for (let i = 0; i < size; i++) {
+                if (checkLine(currentBoard, player, i, size, size)) return true;
+            }
+            // Диагонали
+            if (checkLine(currentBoard, player, 0, size + 1, size)) return true;
+            if (checkLine(currentBoard, player, size - 1, size - 1, size)) return true;
+
+            return false;
+        }
+
+        // Вспомогательная функция проверки линии
+        function checkLine(b, player, start, step, count) {
+            for (let i = 0; i < count; i++) {
+                if (b[start + i * step] !== player) return false;
+            }
+            return true;
+        }
+
+        function highlightWin(winner, color) {
+             const size = boardSize;
+             const winLines = [];
+             
+             // Rows
+             for (let i = 0; i < size * size; i += size) {
+                 let line = []; for(let k=0; k<size; k++) line.push(i+k);
+                 winLines.push(line);
+             }
+             // Cols
+             for (let i = 0; i < size; i++) {
+                 let line = []; for(let k=0; k<size; k++) line.push(i + k*size);
+                 winLines.push(line);
+             }
+             // Diagonals
+             let d1 = []; for(let k=0; k<size; k++) d1.push(k*(size+1));
+             winLines.push(d1);
+             let d2 = []; for(let k=0; k<size; k++) d2.push((k+1)*(size-1));
+             winLines.push(d2);
+
+             winLines.forEach(line => {
+                 if (line.every(idx => board[idx] === winner)) {
+                     line.forEach(idx => {
+                         const cell = document.querySelector(`[data-index='${idx}']`);
+                         if(cell) cell.style.backgroundColor = color;
+                     });
+                 }
+             });
+        }
+
+        /* --- AI (Minimax с оптимизацией) --- */
+        function botTurn() {
+            if (!gameActive) return;
+            
+            // Ограничение глубины для больших досок
+            let depthLimit = 100;
+            if (boardSize === 4) depthLimit = 4; // 4x4 слишком много вариантов, ограничиваем
+            if (boardSize === 5) depthLimit = 3; // 5x5 еще больше
+
+            // Первый ход делаем случайно или в центр, чтобы не ждать просчета
+            const emptyCells = board.filter(s => s === "").length;
+            if (emptyCells === boardSize * boardSize) {
+                const center = Math.floor(board.length / 2);
+                makeMove(center, botSide);
+                return;
+            }
+
+            // Для 3x3 используем полный перебор (непобедимый)
+            // Для 4x4 и 5x5 - ограниченный по глубине (сильный, но быстрый)
+            const moveIndex = getBestMove(depthLimit);
+            makeMove(moveIndex, botSide);
+        }
+
+        function getBestMove(depthLimit) {
+            let bestScore = -Infinity;
+            let move = -1;
+            
+            // Получаем доступные ходы
+            let availableMoves = [];
+            board.forEach((v, i) => { if (v === "") availableMoves.push(i); });
+
+            // Если поле большое и пустое, Minimax долго думает. Перемешиваем ходы для разнообразия
+            availableMoves.sort(() => Math.random() - 0.5);
+
+            for (let i of availableMoves) {
+                board[i] = botSide;
+                let score = minimax(board, 0, false, -Infinity, Infinity, depthLimit);
+                board[i] = "";
+                if (score > bestScore) {
+                    bestScore = score;
+                    move = i;
+                }
+            }
+            return move;
+        }
+
+        const scores = { win: 1000, loss: -1000, tie: 0 };
+
+        function minimax(currentBoard, depth, isMaximizing, alpha, beta, depthLimit) {
+            if (checkWin(currentBoard, botSide, boardSize)) return scores.win - depth;
+            if (checkWin(currentBoard, humanSide, boardSize)) return scores.loss + depth;
+            if (!currentBoard.includes("")) return scores.tie;
+            if (depth >= depthLimit) return 0; // Достигнут лимит глубины (ничья в глазах бота на этом горизонте)
+
+            if (isMaximizing) {
+                let maxEval = -Infinity;
+                for (let i = 0; i < currentBoard.length; i++) {
+                    if (currentBoard[i] === "") {
+                        currentBoard[i] = botSide;
+                        let eval = minimax(currentBoard, depth + 1, false, alpha, beta, depthLimit);
+                        currentBoard[i] = "";
+                        maxEval = Math.max(maxEval, eval);
+                        alpha = Math.max(alpha, eval);
+                        if (beta <= alpha) break;
+                    }
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                for (let i = 0; i < currentBoard.length; i++) {
+                    if (currentBoard[i] === "") {
+                        currentBoard[i] = humanSide;
+                        let eval = minimax(currentBoard, depth + 1, true, alpha, beta, depthLimit);
+                        currentBoard[i] = "";
+                        minEval = Math.min(minEval, eval);
+                        beta = Math.min(beta, eval);
+                        if (beta <= alpha) break;
+                    }
+                }
+                return minEval;
+            }
+        }
+
+        // Инициализация кастомных списков
+        setupDropdowns();
+        // Первый запуск
+        initBoard(); 
+    </script>
+</body>
+</html>
