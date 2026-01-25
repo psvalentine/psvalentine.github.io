@@ -18,7 +18,6 @@
             margin: 0;
             padding: 0;
             background-color: #87CEEB;
-            /* Используем dvh (dynamic viewport height) для правильного отображения на мобилках с адресной строкой */
             height: 100vh;
             height: 100dvh; 
             display: flex;
@@ -33,7 +32,6 @@
             position: relative;
             width: 100%;
             max-width: 450px;
-            /* По умолчанию для ПК */
             height: 90vh; 
             max-height: 850px;
             background-color: #8B4513;
@@ -45,18 +43,15 @@
             flex-direction: column;
         }
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ВАЖНОЕ ИЗМЕНЕНИЕ) --- */
         @media (max-width: 600px) {
             .phone-frame {
-                /* Уменьшаем высоту, чтобы влезло между панелями браузера */
                 height: 80dvh; 
-                /* Делаем рамку чуть тоньше, чтобы было больше места для игры */
                 border-width: 8px; 
                 border-radius: 30px;
             }
         }
 
-        /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА (ИНТЕРФЕЙС) --- */
+        /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА --- */
         .ui-bar {
             width: 100%;
             height: 70px;
@@ -75,7 +70,7 @@
             position: relative;
         }
 
-        /* --- ИГРОВОЙ ЭКРАН (НЕБО) --- */
+        /* --- ИГРОВОЙ ЭКРАН --- */
         .game-screen {
             position: relative;
             flex-grow: 1;
@@ -101,7 +96,6 @@
             z-index: -1;
         }
 
-        /* Типы облаков */
         .cloud.type-1 { width: 100px; height: 40px; }
         .cloud.type-1::after { width: 40px; height: 40px; top: -20px; left: 15px; border-radius: 50%; }
         .cloud.type-1::before { width: 50px; height: 50px; top: -25px; right: 15px; border-radius: 50%; }
@@ -136,13 +130,11 @@
             pointer-events: none;
         }
 
-        /* Анимация полета вверх */
         @keyframes floatUp {
             from { bottom: -150px; }
             to { bottom: 150%; } 
         }
 
-        /* Анимация ПАДЕНИЯ вниз */
         @keyframes fallDown {
             0% { transform: scale(1) rotate(0deg); opacity: 1; }
             50% { opacity: 1; }
@@ -221,6 +213,17 @@
         let gameLoopTimer;
         let difficultyTimer;
 
+        // --- ЗВУКИ ---
+        const soundClick = new Audio('duck.mp3');   // При попадании
+        const soundMiss = new Audio('cow.mp3');     // При пропуске (кот улетел)
+        const soundGameOver = new Audio('honk.mp3');// Game Over
+
+        // Безопасное воспроизведение
+        function playSound(audioObj) {
+            audioObj.currentTime = 0; 
+            audioObj.play().catch(e => console.log('Нет звука:', e));
+        }
+
         const gameScreen = document.getElementById('game-screen');
         const uiBar = document.getElementById('top-bar');
         const scoreDisplay = document.getElementById('score-display');
@@ -296,7 +299,7 @@
                 const catRect = catContainer.getBoundingClientRect();
                 const barRect = uiBar.getBoundingClientRect();
 
-                // Проверка: Если НИЗ кота коснулся НИЗА балки
+                // ПРОВЕРКА НА ВЫЛЕТ (КОТ УЛЕТЕЛ)
                 if (catRect.bottom <= barRect.bottom) { 
                     handleMiss();
                 } else {
@@ -306,10 +309,14 @@
             
             positionTracker = requestAnimationFrame(checkPosition);
 
+            // ФУНКЦИЯ ПРОПУСКА (КОТ УЛЕТЕЛ)
             function handleMiss() {
                 cancelAnimationFrame(positionTracker);
                 if (catContainer.parentNode) catContainer.remove();
                 
+                // ЗВУК КОРОВЫ (только здесь, когда кот улетел)
+                if (!isGameOver) playSound(soundMiss);
+
                 lives--;
                 updateUI();
                 if (lives <= 0) endGame();
@@ -321,6 +328,9 @@
 
                 isHit = true;
                 cancelAnimationFrame(positionTracker);
+
+                // ЗВУК УТКИ (только при попадании)
+                playSound(soundClick);
 
                 score++;
                 updateUI();
@@ -351,6 +361,9 @@
             clearTimeout(gameLoopTimer);
             clearInterval(difficultyTimer);
             
+            // ЗВУК КЛОУНА (только при конце игры)
+            playSound(soundGameOver);
+
             const cats = document.querySelectorAll('.cat-container');
             cats.forEach(cat => cat.classList.add('paused'));
 
