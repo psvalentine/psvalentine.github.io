@@ -6,64 +6,113 @@
     <title>Мои JS Игры</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
     <style>
-        /* --- 0. Глобальный сброс (Убирает полосу прокрутки) --- */
+        /* --- 0. Глобальный сброс --- */
         * {
-            box-sizing: border-box; /* Важнейшая строка! */
+            box-sizing: border-box;
         }
 
-        /* --- 1. Основные настройки и Темная тема --- */
+        /* --- 1. Основные настройки --- */
         body {
             margin: 0;
             padding: 0;
-            background-color: #1a1a1a; /* Очень темно-серый фон */
+            background-color: #1a1a1a;
             color: #f0f0f0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* Растягиваем сайт на всю высоту экрана */
+            min-height: 100vh;
         }
 
+        /* --- НОВАЯ ШАПКА-КНОПКА --- */
         header {
             padding: 40px 20px;
             text-align: center;
+            width: 100%;
+            display: flex;
+            justify-content: center; /* Центрируем кнопку */
         }
 
-        h1 {
+        .header-btn {
+            display: inline-flex;
+            flex-direction: column; /* Текст друг под другом */
+            align-items: center;
+            text-decoration: none; /* Убираем подчеркивание */
+            padding: 15px 40px;
+            border-radius: 20px; /* Закругленные края */
+            background: rgba(255, 255, 255, 0); /* Прозрачный фон изначально */
+            transition: all 0.3s ease; /* Плавная анимация */
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 2.5rem; /* Крупный заголовок */
             font-weight: 300;
             letter-spacing: 2px;
-            margin: 0;
             text-transform: uppercase;
+            color: #fff;
+            margin: 0;
+            transition: color 0.3s;
+        }
+
+        .header-subtitle {
+            color: #888;
+            margin-top: 5px;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        /* Эффекты при наведении (Ховер) */
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.05); /* Легкая подсветка фона */
+            transform: scale(1.02); /* Легкое увеличение */
+        }
+
+        .header-btn:hover .header-title {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Легкое свечение текста */
+        }
+
+        .header-btn:hover .header-subtitle {
+            color: #bbb; /* Текст становится светлее */
+        }
+
+        /* Адаптация шапки под телефоны */
+        @media (max-width: 600px) {
+            .header-btn {
+                padding: 10px 20px;
+                width: 100%; /* На телефоне кнопка может быть шире */
+            }
+            .header-title {
+                font-size: 1.8rem; /* Чуть меньше шрифт */
+            }
+            .header-subtitle {
+                font-size: 0.9rem;
+            }
         }
 
         /* --- 2. Сетка (Grid) --- */
         .container {
             max-width: 1200px;
             width: 90%;
-            flex: 1; /* Толкает футер вниз */
+            flex: 1;
             padding-bottom: 50px;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 колонки по умолчанию */
-            gap: 20px; /* Расстояние между картинками */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
 
-        /* --- 3. Адаптивность (Резиновый сайт) --- */
         @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 колонки */
-            }
+            .grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 600px) {
-            .grid {
-                grid-template-columns: 1fr; /* 1 колонка */
-            }
+            .grid { grid-template-columns: 1fr; }
         }
 
-        /* --- 4. Карточка игры --- */
+        /* --- 3. Карточки игр --- */
         .card {
             position: relative;
             display: block;
@@ -110,18 +159,17 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
-        /* --- 6. ОБНОВЛЕННЫЙ ПОДВАЛ (FOOTER) --- */
+        /* --- 4. Футер --- */
         footer {
             width: 100%;
             padding: 40px 20px;
             text-align: center;
-            /* Убрал цвет фона и границы, чтобы было как сверху */
             margin-top: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Отступ между текстом и аватаркой */
+            gap: 15px;
         }
 
         .footer-text {
@@ -129,49 +177,47 @@
             font-size: 0.9rem;
         }
 
-        /* Ссылка-контейнер для аватарки */
         .github-profile {
             display: flex;
             align-items: center;
             gap: 10px;
-            text-decoration: none; /* Убрал подчеркивание */
-            color: #888; /* Цвет текста серый */
+            text-decoration: none;
+            color: #888;
             font-weight: bold;
             transition: color 0.3s ease, transform 0.3s ease;
             padding: 5px 15px;
             border-radius: 30px;
-            background: rgba(255, 255, 255, 0.05); /* Еле заметный фон */
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Аватарка */
         .github-avatar {
-            width: 40px; /* Размер кружка */
+            width: 40px;
             height: 40px;
-            border-radius: 50%; /* Делает круглым */
+            border-radius: 50%;
             object-fit: cover;
-            filter: grayscale(80%); /* Чуть серая в спокойном состоянии */
+            filter: grayscale(80%);
             transition: transform 0.3s ease, filter 0.3s ease;
         }
 
-        /* Эффекты при наведении (Как ты просил) */
         .github-profile:hover {
-            color: #fff; /* Текст становится белым */
-            transform: scale(1.05); /* Чуть увеличивается весь блок */
+            color: #fff;
+            transform: scale(1.05);
             background: rgba(255, 255, 255, 0.1);
         }
 
         .github-profile:hover .github-avatar {
-            filter: grayscale(0%); /* Аватарка становится цветной */
-            transform: rotate(10deg); /* Игривый наклон аватарки */
+            filter: grayscale(0%);
+            transform: rotate(10deg);
         }
-
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Game Dev Blog</h1>
-        <p style="color: #888; margin-top: 10px;">Моя коллекция игр на JavaScript</p>
+        <a href="index.html" class="header-btn">
+            <h1 class="header-title">Game Dev Blog</h1>
+            <span class="header-subtitle">Моя коллекция игр на JavaScript</span>
+        </a>
     </header>
 
     <div class="container">
@@ -180,26 +226,18 @@
 
     <footer>
         <div class="footer-text">&copy; 2026 Designed by</div>
-        
         <a href="https://github.com/psvalentine" target="_blank" class="github-profile">
-            <img src="https://avatars.githubusercontent.com/u/123456?v=4" alt="Me" class="github-avatar" id="my-avatar">
+            <img src="https://avatars.githubusercontent.com/psvalentine" alt="Me" class="github-avatar" id="my-avatar">
             <span>PSVALENTINE</span>
         </a>
     </footer>
 
     <script>
-        // --- ЗАМЕНИ ЭТУ ССЫЛКУ НА СВОЮ АВАТАРКУ ---
-        // Чтобы взять аватарку с GitHub:
-        // 1. Зайди на свой профиль GitHub
-        // 2. Нажми правой кнопкой на свою фотку -> "Копировать URL картинки"
-        // 3. Вставь ссылку ниже вместо моей
+        // АВАТАРКА
         const myAvatarUrl = "https://avatars.githubusercontent.com/psvalentine"; 
-
-        // Ставим аватарку
         document.getElementById('my-avatar').src = myAvatarUrl;
 
-
-        // --- ДАННЫЕ ИГР ---
+        // ИГРЫ
         const gamesData = [
             { 
                 title: "Крестики-Нолики", 
@@ -248,7 +286,6 @@
             }
         ];
 
-        // --- ЛОГИКА ---
         const gridContainer = document.getElementById('games-grid');
 
         gamesData.forEach(game => {
