@@ -16,6 +16,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh; /* ВАЖНО: Растягиваем сайт на всю высоту экрана */
         }
 
         header {
@@ -34,6 +35,7 @@
         .container {
             max-width: 1200px;
             width: 90%;
+            flex: 1; /* ВАЖНО: Заставляет контент занимать свободное место, толкая футер вниз */
             padding-bottom: 50px;
         }
 
@@ -109,6 +111,31 @@
             transform: translate(-50%, -50%) scale(1); /* Легкий зум текста */
         }
 
+        /* --- 6. ПОДВАЛ (FOOTER) --- */
+        footer {
+            width: 100%;
+            padding: 30px 20px;
+            background-color: #151515; /* Чуть темнее основного фона */
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #333; /* Тонкая линия сверху */
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #f0f0f0;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 5px;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #4CAF50; /* Зеленоватый цвет при наведении (как в GitHub) */
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -122,10 +149,13 @@
         <div class="grid" id="games-grid"></div>
     </div>
 
+    <footer>
+        &copy; 2026 PSVALENTINE | 
+        <a href="https://github.com/psvalentine" target="_blank">My GitHub Profile</a>
+    </footer>
+
     <script>
         // --- НАСТРОЙКИ ---
-        // Здесь ты будешь менять названия, ссылки на картинки и ссылки на игры.
-        // Я поставил картинки-заглушки (серые квадраты).
         
         const gamesData = [
             { 
@@ -175,27 +205,23 @@
             }
         ];
 
-        // --- ЛОГИКА (Генерация блога) ---
+        // --- ЛОГИКА ---
         const gridContainer = document.getElementById('games-grid');
 
         gamesData.forEach(game => {
-            // Создаем ссылку-обертку
             const cardLink = document.createElement('a');
             cardLink.href = game.link;
             cardLink.className = 'card';
-            cardLink.target = '_blank'; // Открывать в новой вкладке
+            cardLink.target = '_blank';
 
-            // Создаем картинку
             const img = document.createElement('img');
             img.src = game.image;
             img.alt = game.title;
 
-            // Создаем заголовок
             const titleDiv = document.createElement('div');
             titleDiv.className = 'card-title';
             titleDiv.textContent = game.title;
 
-            // Собираем всё вместе
             cardLink.appendChild(img);
             cardLink.appendChild(titleDiv);
             gridContainer.appendChild(cardLink);
@@ -203,11 +229,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
