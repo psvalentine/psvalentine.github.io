@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flying Cat Catch</title>
+    <style>
+        /* --- ГЛОБАЛЬНЫЕ НАСТРОЙКИ --- */
+        * {
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* --- РАМКА ТЕЛЕФОНА --- */
+        .phone-frame {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 850px;
+            background-color: #8B4513;
+            border: 15px solid #6F380F;
+            border-radius: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА (ИНТЕРФЕЙС) --- */
+        .ui-bar {
+            width: 100%;
+            height: 70px; /* Фиксированная высота балки */
+            background-color: #8B4513;
+            border-bottom: 5px solid #5a2d0c;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 0 #000;
+            z-index: 100; /* Поверх всего */
+            position: relative;
+        }
+
+        /* --- ИГРОВОЙ ЭКРАН (НЕБО) --- */
+        .game-screen {
+            position: relative;
+            flex-grow: 1;
+            background-color: #87CEEB;
+            overflow: hidden;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+
+        /* --- ОБЛАКА --- */
+        .cloud {
+            position: absolute;
+            background: #fff;
+            border-radius: 100px;
+            z-index: 1;
+            opacity: 0.9;
+        }
+        
+        .cloud::after, .cloud::before {
+            content: '';
+            position: absolute;
+            background: #fff;
+            z-index: -1;
+        }
+
+        /* Типы облаков */
+        .cloud.type-1 { width: 100px; height: 40px; }
+        .cloud.type-1::after { width: 40px; height: 40px; top: -20px; left: 15px; border-radius: 50%; }
+        .cloud.type-1::before { width: 50px; height: 50px; top: -25px; right: 15px; border-radius: 50%; }
+
+        .cloud.type-2 { width: 60px; height: 25px; }
+        .cloud.type-2::after { width: 25px; height: 25px; top: -12px; left: 8px; border-radius: 50%; }
+        .cloud.type-2::before { width: 30px; height: 30px; top: -15px; right: 8px; border-radius: 50%; }
+
+        .c1 { top: 15%; left: 10%; transform: scale(1.2); }
+        .c2 { top: 30%; right: 15%; transform: scale(0.8); }
+        .c3 { top: 50%; left: 20%; transform: scale(1.0); }
+        .c4 { top: 65%; right: 5%; transform: scale(1.1); }
+        .c5 { top: 80%; left: 10%; transform: scale(0.9); }
+
+
+        /* --- КОТИК --- */
+        .cat-container {
+            position: absolute;
+            bottom: -150px;
+            /* ОБЛАСТЬ КЛИКА: Уменьшена и сделана овальной */
+            padding: 10px; 
+            border-radius: 50%; /* Овал */
+            margin: -10px; /* Компенсация отступа */
+            cursor: pointer;
+            z-index: 10; /* Котик НИЖЕ балки (у балки 100), чтобы залетать ПОД неё */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .cat-img {
+            display: block;
+            width: 70px;
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* Анимация полета вверх */
+        @keyframes floatUp {
+            from { bottom: -150px; }
+            /* Летит очень высоко, чтобы точно скрыться за балкой */
+            to { bottom: 150%; } 
+        }
+
+        /* Анимация ПАДЕНИЯ вниз */
+        @keyframes fallDown {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: scale(0.8) rotate(180deg); opacity: 0; bottom: -200px; }
+        }
+
+        .paused {
+            animation-play-state: paused !important;
+            pointer-events: none !important;
+        }
+
+        /* --- GAME OVER --- */
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+            backdrop-filter: blur(3px);
+        }
+
+        .game-over-screen h1 {
+            font-size: 3.5rem;
+            margin: 0 0 20px 0;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .game-over-screen p {
+            font-size: 2rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        <div class="ui-bar" id="top-bar">
+            <div id="score-display">Score: 0</div>
+            <div id="lives-display">5X ❤️</div>
+        </div>
+
+        <div class="game-screen" id="game-screen">
+            <div class="cloud type-1 c1"></div>
+            <div class="cloud type-2 c2"></div>
+            <div class="cloud type-1 c3"></div>
+            <div class="cloud type-1 c4"></div>
+            <div class="cloud type-2 c5"></div>
+
+            <div class="game-over-screen" id="game-over">
+                <h1>GAME OVER</h1>
+                <p>Total Score: <span id="final-score">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const INITIAL_LIVES = 5;
+        const INITIAL_SPAWN_RATE = 2000;
+        const MIN_SPAWN_RATE = 800;
+        
+        let score = 0;
+        let lives = INITIAL_LIVES;
+        let isGameOver = false;
+        let spawnRate = INITIAL_SPAWN_RATE;
+        let catsToSpawnAtOnce = 1;
+
+        let gameLoopTimer;
+        let difficultyTimer;
+
+        const gameScreen = document.getElementById('game-screen');
+        const uiBar = document.getElementById('top-bar');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreDisplay = document.getElementById('final-score');
+
+        function startGame() {
+            clearTimeout(gameLoopTimer);
+            clearInterval(difficultyTimer);
+            document.querySelectorAll('.cat-container').forEach(el => el.remove());
+
+            score = 0;
+            lives = INITIAL_LIVES;
+            spawnRate = INITIAL_SPAWN_RATE;
+            catsToSpawnAtOnce = 1; 
+            isGameOver = false;
+
+            updateUI();
+            gameOverScreen.style.display = 'none';
+
+            gameLoopTimer = setTimeout(spawnCycle, spawnRate);
+            startDifficultyScaler();
+        }
+
+        function startDifficultyScaler() {
+            difficultyTimer = setInterval(() => {
+                if (isGameOver) return;
+                if (spawnRate > MIN_SPAWN_RATE) spawnRate -= 100;
+                if (spawnRate < 1200 && catsToSpawnAtOnce < 2) catsToSpawnAtOnce = 2;
+            }, 10000);
+        }
+
+        function updateUI() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            livesDisplay.textContent = `${Math.max(0, lives)}X ❤️`;
+        }
+
+        function spawnCycle() {
+            if (isGameOver) return;
+            let count = (catsToSpawnAtOnce > 1 && Math.random() > 0.5) ? 2 : 1;
+            for (let i = 0; i < count; i++) {
+                setTimeout(createCat, i * 300);
+            }
+            gameLoopTimer = setTimeout(spawnCycle, spawnRate);
+        }
+
+        function createCat() {
+            if (isGameOver) return;
+
+            const catContainer = document.createElement('div');
+            catContainer.className = 'cat-container';
+            
+            const catImg = document.createElement('img');
+            catImg.src = 'cat.png'; 
+            catImg.className = 'cat-img';
+            catContainer.appendChild(catImg);
+
+            const maxX = gameScreen.offsetWidth - 80; // Чуть меньше отступ, т.к. хитбокс меньше
+            const randomX = Math.random() * maxX;
+            catContainer.style.left = `${randomX}px`;
+
+            const duration = 3 + Math.random() * 3;
+            catContainer.style.animation = `floatUp ${duration}s linear forwards`;
+
+            // --- НОВАЯ ЛОГИКА ОТСЛЕЖИВАНИЯ ---
+            let positionTracker;
+            let isHit = false;
+
+            const checkPosition = () => {
+                if (isGameOver || isHit) return;
+
+                const catRect = catContainer.getBoundingClientRect();
+                const barRect = uiBar.getBoundingClientRect();
+
+                // ИЗМЕНЕНИЕ: Проверяем НИЗ котика (catRect.bottom)
+                // Если НИЗ котика стал выше или равен НИЗУ балки - жизнь теряется.
+                // То есть котик полностью залетел ЗА балку.
+                if (catRect.bottom <= barRect.bottom) { 
+                    handleMiss();
+                } else {
+                    positionTracker = requestAnimationFrame(checkPosition);
+                }
+            };
+            
+            positionTracker = requestAnimationFrame(checkPosition);
+
+            function handleMiss() {
+                cancelAnimationFrame(positionTracker);
+                if (catContainer.parentNode) catContainer.remove();
+                
+                lives--;
+                updateUI();
+                if (lives <= 0) endGame();
+            }
+
+            const clickHandler = (e) => {
+                e.preventDefault();
+                if (isGameOver || isHit) return;
+
+                isHit = true;
+                cancelAnimationFrame(positionTracker);
+
+                score++;
+                updateUI();
+
+                const computedStyle = window.getComputedStyle(catContainer);
+                const currentBottom = computedStyle.bottom;
+                
+                catContainer.style.animation = 'none'; 
+                catContainer.style.bottom = currentBottom; 
+                void catContainer.offsetWidth; 
+
+                catContainer.style.animation = 'fallDown 0.5s ease-in forwards';
+                catContainer.style.pointerEvents = 'none';
+
+                setTimeout(() => {
+                    if (catContainer.parentNode) catContainer.remove();
+                }, 500);
+            };
+
+            catContainer.addEventListener('mousedown', clickHandler);
+            catContainer.addEventListener('touchstart', clickHandler);
+
+            gameScreen.appendChild(catContainer);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            clearTimeout(gameLoopTimer);
+            clearInterval(difficultyTimer);
+            
+            const cats = document.querySelectorAll('.cat-container');
+            cats.forEach(cat => cat.classList.add('paused'));
+
+            finalScoreDisplay.textContent = score;
+            gameOverScreen.style.display = 'flex';
+
+            setTimeout(startGame, 2500);
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
