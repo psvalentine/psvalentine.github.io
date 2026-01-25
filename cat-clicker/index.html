@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кузеловка</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <title>Flying Cat Catch</title>
     <style>
         /* --- ГЛОБАЛЬНЫЕ НАСТРОЙКИ --- */
         * {
@@ -18,7 +17,6 @@
             margin: 0;
             padding: 0;
             background-color: #87CEEB;
-            /* Используем dvh (dynamic viewport height) для правильного отображения на мобилках с адресной строкой */
             height: 100vh;
             height: 100dvh; 
             display: flex;
@@ -26,6 +24,7 @@
             align-items: center;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative; /* Для позиционирования футера */
         }
 
         /* --- РАМКА ТЕЛЕФОНА --- */
@@ -33,7 +32,6 @@
             position: relative;
             width: 100%;
             max-width: 450px;
-            /* По умолчанию для ПК */
             height: 90vh; 
             max-height: 850px;
             background-color: #8B4513;
@@ -43,20 +41,64 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            z-index: 2; /* Игра выше футера, на всякий случай */
         }
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ВАЖНОЕ ИЗМЕНЕНИЕ) --- */
         @media (max-width: 600px) {
             .phone-frame {
-                /* Уменьшаем высоту, чтобы влезло между панелями браузера */
                 height: 80dvh; 
-                /* Делаем рамку чуть тоньше, чтобы было больше места для игры */
                 border-width: 8px; 
                 border-radius: 30px;
             }
         }
 
-        /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА (ИНТЕРФЕЙС) --- */
+        /* --- ФУТЕР (КНОПКА) --- */
+        .footer-container {
+            position: absolute;
+            bottom: 20px; /* Отступ от низа экрана */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .github-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fff; /* Белый текст */
+            font-weight: bold;
+            padding: 10px 20px;
+            /* Закругление 8px, как на главном сайте */
+            border-radius: 8px; 
+            /* Полупрозрачный темный фон для контраста с небом */
+            background: rgba(0, 0, 0, 0.2); 
+            transition: transform 0.3s ease, background 0.3s ease;
+            backdrop-filter: blur(2px); /* Легкое размытие фона под кнопкой */
+        }
+
+        .github-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: grayscale(80%);
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        /* Эффекты при наведении */
+        .github-profile:hover {
+            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.4); /* Темнеет при наведении */
+        }
+
+        .github-profile:hover .github-avatar {
+            filter: grayscale(0%);
+            transform: rotate(10deg);
+        }
+
+        /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА --- */
         .ui-bar {
             width: 100%;
             height: 70px;
@@ -75,7 +117,7 @@
             position: relative;
         }
 
-        /* --- ИГРОВОЙ ЭКРАН (НЕБО) --- */
+        /* --- ИГРОВОЙ ЭКРАН --- */
         .game-screen {
             position: relative;
             flex-grow: 1;
@@ -101,7 +143,6 @@
             z-index: -1;
         }
 
-        /* Типы облаков */
         .cloud.type-1 { width: 100px; height: 40px; }
         .cloud.type-1::after { width: 40px; height: 40px; top: -20px; left: 15px; border-radius: 50%; }
         .cloud.type-1::before { width: 50px; height: 50px; top: -25px; right: 15px; border-radius: 50%; }
@@ -136,13 +177,11 @@
             pointer-events: none;
         }
 
-        /* Анимация полета вверх */
         @keyframes floatUp {
             from { bottom: -150px; }
             to { bottom: 150%; } 
         }
 
-        /* Анимация ПАДЕНИЯ вниз */
         @keyframes fallDown {
             0% { transform: scale(1) rotate(0deg); opacity: 1; }
             50% { opacity: 1; }
@@ -207,7 +246,19 @@
         </div>
     </div>
 
+    <div class="footer-container">
+        <a href="https://github.com/psvalentine" target="_blank" class="github-profile">
+            <img src="https://avatars.githubusercontent.com/psvalentine" alt="Me" class="github-avatar" id="my-avatar">
+            <span>PSVALENTINE</span>
+        </a>
+    </div>
+
     <script>
+        // Аватарка
+        const myAvatarUrl = "https://avatars.githubusercontent.com/psvalentine"; 
+        document.getElementById('my-avatar').src = myAvatarUrl;
+
+        // --- ЛОГИКА ИГРЫ ---
         const INITIAL_LIVES = 5;
         const INITIAL_SPAWN_RATE = 2000;
         const MIN_SPAWN_RATE = 800;
@@ -286,7 +337,6 @@
             const duration = 3 + Math.random() * 3;
             catContainer.style.animation = `floatUp ${duration}s linear forwards`;
 
-            // ТРЕКЕР ПОЗИЦИИ
             let positionTracker;
             let isHit = false;
 
@@ -296,7 +346,6 @@
                 const catRect = catContainer.getBoundingClientRect();
                 const barRect = uiBar.getBoundingClientRect();
 
-                // Проверка: Если НИЗ кота коснулся НИЗА балки
                 if (catRect.bottom <= barRect.bottom) { 
                     handleMiss();
                 } else {
