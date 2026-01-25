@@ -18,7 +18,9 @@
             margin: 0;
             padding: 0;
             background-color: #87CEEB;
+            /* Используем dvh (dynamic viewport height) для правильного отображения на мобилках с адресной строкой */
             height: 100vh;
+            height: 100dvh; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -31,7 +33,8 @@
             position: relative;
             width: 100%;
             max-width: 450px;
-            height: 90vh;
+            /* По умолчанию для ПК */
+            height: 90vh; 
             max-height: 850px;
             background-color: #8B4513;
             border: 15px solid #6F380F;
@@ -42,10 +45,21 @@
             flex-direction: column;
         }
 
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ВАЖНОЕ ИЗМЕНЕНИЕ) --- */
+        @media (max-width: 600px) {
+            .phone-frame {
+                /* Уменьшаем высоту, чтобы влезло между панелями браузера */
+                height: 80dvh; 
+                /* Делаем рамку чуть тоньше, чтобы было больше места для игры */
+                border-width: 8px; 
+                border-radius: 30px;
+            }
+        }
+
         /* --- ВЕРХНЯЯ ДЕРЕВЯННАЯ БАЛКА (ИНТЕРФЕЙС) --- */
         .ui-bar {
             width: 100%;
-            height: 70px; /* Фиксированная высота балки */
+            height: 70px;
             background-color: #8B4513;
             border-bottom: 5px solid #5a2d0c;
             box-shadow: 0 5px 10px rgba(0,0,0,0.3);
@@ -57,7 +71,7 @@
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 0 #000;
-            z-index: 100; /* Поверх всего */
+            z-index: 100;
             position: relative;
         }
 
@@ -107,12 +121,11 @@
         .cat-container {
             position: absolute;
             bottom: -150px;
-            /* ОБЛАСТЬ КЛИКА: Уменьшена и сделана овальной */
             padding: 10px; 
-            border-radius: 50%; /* Овал */
-            margin: -10px; /* Компенсация отступа */
+            border-radius: 50%;
+            margin: -10px;
             cursor: pointer;
-            z-index: 10; /* Котик НИЖЕ балки (у балки 100), чтобы залетать ПОД неё */
+            z-index: 10;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -126,7 +139,6 @@
         /* Анимация полета вверх */
         @keyframes floatUp {
             from { bottom: -150px; }
-            /* Летит очень высоко, чтобы точно скрыться за балкой */
             to { bottom: 150%; } 
         }
 
@@ -267,14 +279,14 @@
             catImg.className = 'cat-img';
             catContainer.appendChild(catImg);
 
-            const maxX = gameScreen.offsetWidth - 80; // Чуть меньше отступ, т.к. хитбокс меньше
+            const maxX = gameScreen.offsetWidth - 80;
             const randomX = Math.random() * maxX;
             catContainer.style.left = `${randomX}px`;
 
             const duration = 3 + Math.random() * 3;
             catContainer.style.animation = `floatUp ${duration}s linear forwards`;
 
-            // --- НОВАЯ ЛОГИКА ОТСЛЕЖИВАНИЯ ---
+            // ТРЕКЕР ПОЗИЦИИ
             let positionTracker;
             let isHit = false;
 
@@ -284,9 +296,7 @@
                 const catRect = catContainer.getBoundingClientRect();
                 const barRect = uiBar.getBoundingClientRect();
 
-                // ИЗМЕНЕНИЕ: Проверяем НИЗ котика (catRect.bottom)
-                // Если НИЗ котика стал выше или равен НИЗУ балки - жизнь теряется.
-                // То есть котик полностью залетел ЗА балку.
+                // Проверка: Если НИЗ кота коснулся НИЗА балки
                 if (catRect.bottom <= barRect.bottom) { 
                     handleMiss();
                 } else {
@@ -353,5 +363,4 @@
         startGame();
     </script>
 </body>
-
 </html>
