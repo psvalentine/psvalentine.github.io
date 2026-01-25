@@ -6,6 +6,11 @@
     <title>Мои JS Игры</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
     <style>
+        /* --- 0. Глобальный сброс (Убирает полосу прокрутки) --- */
+        * {
+            box-sizing: border-box; /* Важнейшая строка! */
+        }
+
         /* --- 1. Основные настройки и Темная тема --- */
         body {
             margin: 0;
@@ -16,7 +21,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* ВАЖНО: Растягиваем сайт на всю высоту экрана */
+            min-height: 100vh; /* Растягиваем сайт на всю высоту экрана */
         }
 
         header {
@@ -35,7 +40,7 @@
         .container {
             max-width: 1200px;
             width: 90%;
-            flex: 1; /* ВАЖНО: Заставляет контент занимать свободное место, толкая футер вниз */
+            flex: 1; /* Толкает футер вниз */
             padding-bottom: 50px;
         }
 
@@ -46,14 +51,12 @@
         }
 
         /* --- 3. Адаптивность (Резиновый сайт) --- */
-        /* Для планшетов */
         @media (max-width: 900px) {
             .grid {
                 grid-template-columns: repeat(2, 1fr); /* 2 колонки */
             }
         }
 
-        /* Для телефонов */
         @media (max-width: 600px) {
             .grid {
                 grid-template-columns: 1fr; /* 1 колонка */
@@ -65,25 +68,22 @@
             position: relative;
             display: block;
             width: 100%;
-            /* Соотношение сторон 16:9 для красоты */
             aspect-ratio: 16 / 9; 
             overflow: hidden;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             cursor: pointer;
-            text-decoration: none; /* Убираем подчеркивание ссылки */
+            text-decoration: none;
         }
 
-        /* Картинка */
         .card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease, filter 0.3s ease;
-            filter: brightness(0.5) grayscale(40%); /* Изначально затемнена */
+            filter: brightness(0.5) grayscale(40%);
         }
 
-        /* Текст (Название) */
         .card-title {
             position: absolute;
             top: 50%;
@@ -93,47 +93,76 @@
             font-size: 1.5rem;
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            opacity: 0; /* Изначально скрыт */
+            opacity: 0;
             transition: opacity 0.3s ease, transform 0.3s ease;
             text-align: center;
             width: 90%;
-            pointer-events: none; /* Чтобы клик проходил сквозь текст */
+            pointer-events: none;
         }
 
-        /* --- 5. Эффекты при наведении (Ховер) --- */
         .card:hover img {
-            filter: brightness(1.1) grayscale(0%); /* Осветляем картинку */
-            transform: scale(1.05); /* Легкое увеличение */
+            filter: brightness(1.1) grayscale(0%);
+            transform: scale(1.05);
         }
 
         .card:hover .card-title {
-            opacity: 1; /* Показываем текст */
-            transform: translate(-50%, -50%) scale(1); /* Легкий зум текста */
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
-        /* --- 6. ПОДВАЛ (FOOTER) --- */
+        /* --- 6. ОБНОВЛЕННЫЙ ПОДВАЛ (FOOTER) --- */
         footer {
             width: 100%;
-            padding: 30px 20px;
-            background-color: #151515; /* Чуть темнее основного фона */
+            padding: 40px 20px;
             text-align: center;
+            /* Убрал цвет фона и границы, чтобы было как сверху */
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Отступ между текстом и аватаркой */
+        }
+
+        .footer-text {
             color: #666;
             font-size: 0.9rem;
-            border-top: 1px solid #333; /* Тонкая линия сверху */
-            margin-top: auto;
         }
 
-        footer a {
-            color: #f0f0f0;
-            text-decoration: none;
+        /* Ссылка-контейнер для аватарки */
+        .github-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none; /* Убрал подчеркивание */
+            color: #888; /* Цвет текста серый */
             font-weight: bold;
-            margin-left: 5px;
-            transition: color 0.3s;
+            transition: color 0.3s ease, transform 0.3s ease;
+            padding: 5px 15px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05); /* Еле заметный фон */
         }
 
-        footer a:hover {
-            color: #4CAF50; /* Зеленоватый цвет при наведении (как в GitHub) */
-            text-decoration: underline;
+        /* Аватарка */
+        .github-avatar {
+            width: 40px; /* Размер кружка */
+            height: 40px;
+            border-radius: 50%; /* Делает круглым */
+            object-fit: cover;
+            filter: grayscale(80%); /* Чуть серая в спокойном состоянии */
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        /* Эффекты при наведении (Как ты просил) */
+        .github-profile:hover {
+            color: #fff; /* Текст становится белым */
+            transform: scale(1.05); /* Чуть увеличивается весь блок */
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .github-profile:hover .github-avatar {
+            filter: grayscale(0%); /* Аватарка становится цветной */
+            transform: rotate(10deg); /* Игривый наклон аватарки */
         }
 
     </style>
@@ -150,13 +179,27 @@
     </div>
 
     <footer>
-        &copy; 2026 PSVALENTINE | 
-        <a href="https://github.com/psvalentine" target="_blank">My GitHub Profile</a>
+        <div class="footer-text">&copy; 2026 Designed by</div>
+        
+        <a href="https://github.com/psvalentine" target="_blank" class="github-profile">
+            <img src="https://avatars.githubusercontent.com/u/123456?v=4" alt="Me" class="github-avatar" id="my-avatar">
+            <span>PSVALENTINE</span>
+        </a>
     </footer>
 
     <script>
-        // --- НАСТРОЙКИ ---
-        
+        // --- ЗАМЕНИ ЭТУ ССЫЛКУ НА СВОЮ АВАТАРКУ ---
+        // Чтобы взять аватарку с GitHub:
+        // 1. Зайди на свой профиль GitHub
+        // 2. Нажми правой кнопкой на свою фотку -> "Копировать URL картинки"
+        // 3. Вставь ссылку ниже вместо моей
+        const myAvatarUrl = "https://avatars.githubusercontent.com/psvalentine"; 
+
+        // Ставим аватарку
+        document.getElementById('my-avatar').src = myAvatarUrl;
+
+
+        // --- ДАННЫЕ ИГР ---
         const gamesData = [
             { 
                 title: "Крестики-Нолики", 
