@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кото-Трекер 2.0</title>
+    <title>Кото-Трекер</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
         :root {
             --bg-color: #f4f6f8;
@@ -126,19 +127,19 @@
 
     <div id="setup" class="setup-box">
         <h2>👋 Привет!</h2>
-        <p>Как вас зовут?</p>
+        <p>Ты кто?</p>
         <input type="text" id="username" placeholder="Имя (например, Алексей)">
         <button class="main-btn" style="background: var(--blue);" onclick="saveUser()">Войти</button>
     </div>
 
     <div id="app" style="display:none; width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <h1>🐈 Кото-Контроль</h1>
+        <h1>🐈 Кото-Трекер</h1>
         <div class="subtitle" id="welcome-text">Добро пожаловать</div>
 
         <div id="cats-container"></div>
         
         <div id="history-log">
-            <h3 style="margin: 0 0 15px 0;">📜 История событий</h3>
+            <h3 style="margin: 0 0 15px 0;">📜 История похождений</h3>
             <div id="log-list">Загрузка...</div>
         </div>
     </div>
@@ -340,3 +341,4 @@
     </script>
 </body>
 </html>
+
