@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Трекер Котов 🐈</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 20px; text-align: center; }
+        h1 { margin-bottom: 20px; font-size: 1.5rem; }
+        .setup-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        .cat-card {
+            background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s;
+        }
+        .cat-card.outside { border: 2px solid #ff9800; background: #fff8e1; }
+        .cat-name { font-size: 1.5rem; font-weight: bold; margin: 0; }
+        .status { font-size: 1.2rem; margin: 10px 0; font-weight: bold; color: #4caf50; }
+        .outside .status { color: #ff9800; }
+        .timer { font-size: 2rem; font-family: monospace; color: #333; margin: 10px 0; }
+        .info { color: #666; font-size: 0.9rem; margin-bottom: 15px; }
+        
+        button.action-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer;
+            background: #4caf50; color: white;
+            transition: background 0.2s;
+        }
+        button.action-btn:active { transform: scale(0.98); }
+        .outside button.action-btn { background: #ff9800; color: black; }
+        
+        input { padding: 10px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; width: 80%; margin-bottom: 10px;}
+        .save-btn { background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;}
+        
+        #history-log { text-align: left; margin-top: 30px; background: white; padding: 15px; border-radius: 12px; }
+        .log-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.9rem; }
+        .log-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <div id="setup" class="setup-box">
+        <h3>Кто вы?</h3>
+        <p>Введите имя, чтобы история знала, кто выпустил кота.</p>
+        <input type="text" id="username" placeholder="Ваше имя (например, Алексей)">
+        <br>
+        <button class="save-btn" onclick="saveUser()">Сохранить</button>
+    </div>
+
+    <div id="app" style="display:none;">
+        <h1>🐈 Контроль котов</h1>
+        <div id="cats-container"></div>
+        
+        <div id="history-log">
+            <h3>История событий:</h3>
+            <div id="log-list">Загрузка...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Используем CDN ссылки, чтобы работало в браузере без сборки
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, addDoc } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- ВАША КОНФИГУРАЦИЯ ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
+            authDomain: "cattracker-b813e.firebaseapp.com",
+            projectId: "cattracker-b813e",
+            storageBucket: "cattracker-b813e.firebasestorage.app",
+            messagingSenderId: "289911262006",
+            appId: "1:289911262006:web:48d3c40ee80147612b0197"
+        };
+        // -------------------------
+
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // !!! СПИСОК КОТОВ: ПОМЕНЯЙТЕ ИМЕНА ЗДЕСЬ !!!
+        const MY_CATS = ["Барсик", "Мурзик"]; 
+
+        // 1. Проверка пользователя (сохранен ли в браузере?)
+        const storedUser = localStorage.getItem('catUser');
+        if(storedUser) {
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+
+        window.saveUser = () => {
+            const name = document.getElementById('username').value;
+            if(name) {
+                localStorage.setItem('catUser', name);
+                location.reload();
+            }
+        }
+
+        const currentUser = localStorage.getItem('catUser') || "Неизвестный";
+
+        // 2. Создаем карточки котов
+        const container = document.getElementById('cats-container');
+        MY_CATS.forEach(cat => {
+            container.innerHTML += `
+                <div class="cat-card" id="card-${cat}">
+                    <div class="cat-name">${cat}</div>
+                    <div class="status" id="status-${cat}">Загрузка...</div>
+                    <div class="timer" id="timer-${cat}">00:00:00</div>
+                    <div class="info" id="info-${cat}">Данных нет</div>
+                    <button class="action-btn" id="btn-${cat}">Переключить</button>
+                </div>
+            `;
+        });
+
+        // 3. Подписываемся на изменения статуса (Real-time)
+        onSnapshot(collection(db, "status"), (snapshot) => {
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const catName = docSnap.id;
+                // Если имя кота есть в нашем списке UI, обновляем его
+                if (document.getElementById(`card-${catName}`)) {
+                    updateUI(catName, data);
+                }
+            });
+        });
+
+        // 4. Подписываемся на историю (последние 10 записей)
+        const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(10));
+        onSnapshot(q, (snapshot) => {
+            const list = document.getElementById('log-list');
+            list.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const d = doc.data();
+                const date = new Date(d.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', day: 'numeric', month: 'numeric'});
+                const actionColor = d.isOutside ? "#ff9800" : "#4caf50";
+                const actionText = d.isOutside ? "выпустил(а) гулять" : "впустил(а) домой";
+                
+                list.innerHTML += `
+                    <div class="log-item">
+                        <span style="color:#999; font-size:0.8em">${date}</span><br>
+                        <b>${d.user}</b> <span style="color:${actionColor}">${actionText}</span> <b>${d.cat}</b>
+                    </div>`;
+            });
+        });
+
+        // Функция обновления интерфейса
+        function updateUI(cat, data) {
+            const card = document.getElementById(`card-${cat}`);
+            const statusDiv = document.getElementById(`status-${cat}`);
+            const infoDiv = document.getElementById(`info-${cat}`);
+            const btn = document.getElementById(`btn-${cat}`);
+            const timerDiv = document.getElementById(`timer-${cat}`);
+
+            // Назначаем действие кнопке
+            btn.onclick = () => toggleCat(cat, data ? !data.isOutside : true);
+
+            if (!data) {
+                statusDiv.innerText = "Дома (нет данных)";
+                return;
+            }
+
+            // Меняем цвета и текст
+            if (data.isOutside) {
+                card.classList.add('outside');
+                statusDiv.innerText = "🌳 ГУЛЯЕТ";
+                btn.innerText = "Впустить домой";
+                startTimer(cat, data.lastChange);
+            } else {
+                card.classList.remove('outside');
+                statusDiv.innerText = "🏠 ДОМА";
+                btn.innerText = "Выпустить гулять";
+                stopTimer(cat);
+                timerDiv.innerText = "00:00:00";
+            }
+
+            const timeStr = new Date(data.lastChange).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            infoDiv.innerText = `Последнее действие: ${data.user} в ${timeStr}`;
+        }
+
+        // Логика нажатия кнопки (запись в базу)
+        async function toggleCat(catName, goOutside) {
+            const now = Date.now();
+            
+            // Записываем текущий статус (перезаписываем документ)
+            await setDoc(doc(db, "status", catName), {
+                isOutside: goOutside,
+                lastChange: now,
+                user: currentUser
+            });
+
+            // Добавляем запись в общую историю
+            await addDoc(collection(db, "history"), {
+                cat: catName,
+                isOutside: goOutside,
+                user: currentUser,
+                timestamp: now
+            });
+        }
+
+        // --- Логика таймера (секундомер) ---
+        let intervals = {};
+        
+        function startTimer(cat, startTime) {
+            if (intervals[cat]) clearInterval(intervals[cat]);
+            
+            // Функция тика
+            const tick = () => {
+                const now = Date.now();
+                const diff = now - startTime;
+                
+                if (diff < 0) return; // Защита от рассинхрона времени
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                const el = document.getElementById(`timer-${cat}`);
+                if(el) el.innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            };
+
+            tick(); // Запустить сразу
+            intervals[cat] = setInterval(tick, 1000);
+        }
+
+        function stopTimer(cat) {
+            if (intervals[cat]) clearInterval(intervals[cat]);
+        }
+
+        function pad(n) { return n < 10 ? '0' + n : n; }
+    </script>
+</body>
+</html>
