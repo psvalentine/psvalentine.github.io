@@ -2,20 +2,22 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  // Найдите этот ID в Project Settings -> General -> Your apps
   messagingSenderId: "289911262006" 
 });
 
 const messaging = firebase.messaging();
 
-// Это сработает, когда уведомление придет в фоновом режиме
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  console.log('[SW] Получено сообщение:', payload);
+  
+  // Показываем уведомление
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/CatTracker/icon.png' // Путь к вашей иконке
+    icon: '/CatTracker/icon.png', // Ваша иконка
+    // При клике открываем сайт
+    click_action: "https://psvalentine.github.io/CatTracker/" 
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
