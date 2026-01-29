@@ -30,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* ИЗМЕНЕНО: Заголовок стал чуть больше и с большим отступом снизу */
         h1 { 
             margin-top: 10px; 
             margin-bottom: 15px; 
@@ -38,22 +37,18 @@
             text-align: center;
         }
         
-        /* ИЗМЕНЕНО: Стиль плашки (Badge) для имени пользователя */
         .subtitle { 
             font-size: 1rem; 
             color: var(--text-main); 
-            margin-bottom: 35px; /* Отступ до карточек */
-            
-            /* Делаем белый фон и тень */
+            margin-bottom: 35px;
             background-color: white;
             padding: 8px 20px;
-            border-radius: 50px; /* Овальная форма */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Легкая тень */
-            
-            display: inline-flex; /* Чтобы блок был по ширине контента */
+            border-radius: 24px; /* ИЗМЕНЕНО: Теперь закругление как у карточек */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: inline-flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid rgba(0,0,0,0.03); /* Еле заметная граница */
+            border: 1px solid rgba(0,0,0,0.03);
         }
 
         /* Setup (Вход) */
@@ -90,7 +85,8 @@
 
         .cat-card {
             background: var(--card-bg);
-            border-radius: 24px; padding: 25px;
+            border-radius: 24px;
+            padding: 25px;
             position: relative;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
@@ -126,16 +122,14 @@
             margin: 10px 0; color: var(--text-main); letter-spacing: -1px;
         }
         
-        /* ИСПРАВЛЕНО: Добавлена линия сверху */
         .meta-info { 
             font-size: 1rem; 
             color: var(--text-main); 
             margin-bottom: 25px; 
             min-height: 1.2em;
-            
-            border-top: 1px solid #f0f0f0; /* Линия */
-            padding-top: 20px;            /* Отступ от линии до текста */
-            margin-top: 15px;             /* Отступ от верха до линии */
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+            margin-top: 15px;
         }
 
         .main-btn {
