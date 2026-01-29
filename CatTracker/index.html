@@ -37,40 +37,33 @@
             text-align: center;
         }
         
-        /* Стиль плашки профиля */
         .subtitle { 
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-main); 
             margin-bottom: 35px;
-            
             background-color: var(--card-bg);
             padding: 15px 30px;
             border-radius: 24px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            
             display: inline-flex;
             align-items: center;
             gap: 15px;
         }
 
-        /* Стиль кнопки выхода */
         .logout-btn {
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-main);
-            
             background-color: var(--card-bg);
             padding: 15px 30px;
             border-radius: 24px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             border: none;
-            
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 40px;
@@ -87,12 +80,13 @@
 
         /* Setup (Вход) */
         #setup {
-            background: var(--card-bg); /* Это подложка (фон), можно оставить или сделать прозрачной */
+            background: var(--card-bg);
             padding: 40px 30px;
-            border-radius: 24px; /* Тоже скруглим углы контейнера */
+            border-radius: 24px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             text-align: center;
-            max-width: 320px;
+            /* ИЗМЕНЕНО: Увеличили ширину, чтобы текст влезал на ПК */
+            max-width: 380px; 
             width: 100%;
             display: flex; 
             flex-direction: column;
@@ -101,31 +95,30 @@
             margin: auto 0;
         }
 
-        /* ИЗМЕНЕНО: Кнопка Google теперь такая же красивая (как карточка) */
+        /* Кнопка Google */
         .google-btn {
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            gap: 15px; /* Отступ между иконкой и текстом */
-            
+            gap: 15px;
             background: white; 
             color: var(--text-main); 
-            
-            border: none; /* Убрали серую рамку */
-            border-radius: 24px; /* Скругление 24px */
-            padding: 15px 30px; /* Большие отступы */
-            
+            border: none; 
+            border-radius: 24px; 
+            padding: 15px 30px;
             font-size: 1.1rem; 
             font-weight: 600;
             cursor: pointer; 
             width: 100%; 
             transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* Тень как у других */
+            /* ИЗМЕНЕНО: Запрещаем перенос текста на новую строку */
+            white-space: nowrap; 
         }
         
         .google-btn:hover { 
-            transform: translateY(-2px); /* Всплывает при наведении */
+            transform: translateY(-2px); 
             box-shadow: 0 12px 25px rgba(0,0,0,0.1);
             background: white;
         }
