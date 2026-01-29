@@ -16,6 +16,9 @@
             --green: #00b894;
             --red: #ff7675;
             --blue: #0984e3;
+            
+            /* ГЛАВНАЯ НАСТРОЙКА ОТСТУПОВ */
+            --spacing: 20px; 
         }
 
         body {
@@ -23,25 +26,31 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            
+            /* ИЗМЕНЕНО: Единые отступы от краев и между элементами */
+            padding: var(--spacing); 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            gap: var(--spacing); /* Одинаковое расстояние между ВСЕМИ блоками */
         }
 
         h1 { 
-            margin-top: 10px; 
-            margin-bottom: 20px; 
+            /* Убрали лишние margin, теперь за всё отвечает gap в body */
+            margin: 0; 
             font-size: 2rem; 
             text-align: center;
+            line-height: 1.2;
         }
         
         .subtitle { 
             font-size: 1.1rem;
             font-weight: 500;
             color: var(--text-main); 
-            margin-bottom: 35px;
+            /* Убрали margin-bottom */
+            margin: 0; 
+            
             background-color: var(--card-bg);
             padding: 15px 30px;
             border-radius: 24px;
@@ -53,8 +62,7 @@
 
         .logout-btn {
             font-size: 1.1rem;
-            /* ИЗМЕНЕНО: Для ПК ставим 600 (пожирнее) */
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-main);
             background-color: var(--card-bg);
             padding: 15px 30px;
@@ -67,8 +75,8 @@
             gap: 10px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 40px;
-            margin-bottom: 20px;
+            /* Убрали margin, так как body gap делает отступы */
+            margin: 0;
         }
 
         .logout-btn:hover {
@@ -92,7 +100,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: auto 0;
+            /* margin: auto 0; - заменяем на flex-grow для центровки при пустом экране */
+            margin: auto; 
         }
 
         /* Кнопка Google */
@@ -107,7 +116,6 @@
             border-radius: 24px; 
             padding: 15px 30px;
             font-size: 1.1rem; 
-            /* ИЗМЕНЕНО: Для ПК ставим 600 (пожирнее) */
             font-weight: 600;
             cursor: pointer; 
             width: 100%; 
@@ -126,7 +134,8 @@
         /* Карточки котов */
         #cats-container {
             width: 100%; max-width: 600px;
-            display: grid; gap: 20px;
+            display: grid; 
+            gap: var(--spacing); /* Тут тоже используем единую переменную 20px */
         }
 
         .cat-card {
@@ -201,7 +210,8 @@
         /* История */
         #history-log {
             width: 100%; max-width: 600px;
-            margin-top: 40px;
+            /* Убрали margin, так как body gap делает отступы */
+            margin: 0;
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: none; 
@@ -236,7 +246,6 @@
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
             
-            /* ИЗМЕНЕНО: Для мобильных возвращаем потоньше, как вы любите */
             .google-btn, .logout-btn {
                 font-weight: 500;
             }
