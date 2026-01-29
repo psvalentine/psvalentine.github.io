@@ -6,9 +6,9 @@
     <title>Кото-Трекер</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
-        * { box-sizing: border-box; }
-
+        /* 1. Глобальная настройка отступов. Поменяйте 25px на любое число, и изменится ВЕЗДЕ. */
         :root {
+            --spacing: 25px; 
             --bg-color: #f4f6f8;
             --card-bg: #ffffff;
             --text-main: #2d3436;
@@ -16,10 +16,9 @@
             --green: #00b894;
             --red: #ff7675;
             --blue: #0984e3;
-            
-            /* ГЛАВНАЯ НАСТРОЙКА ОТСТУПОВ */
-            --spacing: 20px; 
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -27,29 +26,37 @@
             color: var(--text-main);
             margin: 0;
             
-            /* ИЗМЕНЕНО: Единые отступы от краев и между элементами */
-            padding: var(--spacing); 
+            /* ИСПРАВЛЕНИЕ: Используем min-height вместо height, чтобы блоки не наезжали */
+            min-height: 100vh;
+            
+            /* Отступы от самого верха и самого низа страницы */
+            padding-top: var(--spacing);
+            padding-bottom: var(--spacing);
+            padding-left: 20px;
+            padding-right: 20px;
+
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            gap: var(--spacing); /* Одинаковое расстояние между ВСЕМИ блоками */
         }
 
+        /* --- ЗАГОЛОВОК --- */
         h1 { 
-            /* Убрали лишние margin, теперь за всё отвечает gap в body */
-            margin: 0; 
+            margin: 0; /* Обнуляем старые отступы */
+            margin-bottom: var(--spacing); /* Отступ до имени */
             font-size: 2rem; 
             text-align: center;
             line-height: 1.2;
         }
         
+        /* --- ПЛАШКА С ИМЕНЕМ --- */
         .subtitle { 
             font-size: 1.1rem;
             font-weight: 500;
             color: var(--text-main); 
-            /* Убрали margin-bottom */
-            margin: 0; 
+            
+            margin: 0;
+            margin-bottom: var(--spacing); /* Отступ до Феде */
             
             background-color: var(--card-bg);
             padding: 15px 30px;
@@ -60,84 +67,17 @@
             gap: 15px;
         }
 
-        .logout-btn {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text-main);
-            background-color: var(--card-bg);
-            padding: 15px 30px;
-            border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            /* Убрали margin, так как body gap делает отступы */
-            margin: 0;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-        }
-        .logout-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Setup (Вход) */
-        #setup {
-            background: var(--card-bg);
-            padding: 40px 30px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            max-width: 380px; 
-            width: 100%;
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            /* margin: auto 0; - заменяем на flex-grow для центровки при пустом экране */
-            margin: auto; 
-        }
-
-        /* Кнопка Google */
-        .google-btn {
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 15px;
-            background: white; 
-            color: var(--text-main); 
-            border: none; 
-            border-radius: 24px; 
-            padding: 15px 30px;
-            font-size: 1.1rem; 
-            font-weight: 600;
-            cursor: pointer; 
-            width: 100%; 
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            white-space: nowrap; 
-        }
-        
-        .google-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-            background: white;
-        }
-        .google-btn:active { transform: scale(0.98); }
-
-        /* Карточки котов */
+        /* --- КОНТЕЙНЕР КОТОВ --- */
         #cats-container {
             width: 100%; max-width: 600px;
             display: grid; 
-            gap: var(--spacing); /* Тут тоже используем единую переменную 20px */
+            /* Отступ между Федей и Кузей */
+            gap: var(--spacing); 
+            /* Отступ от Кузи до Истории */
+            margin-bottom: var(--spacing); 
         }
 
+        /* --- КАРТОЧКА КОТА --- */
         .cat-card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -148,32 +88,21 @@
             border-left: 6px solid #dfe6e9;
             text-align: center;
         }
-
         .cat-card.home { border-left-color: var(--green); }
         .cat-card.home .status-badge { background: #e6fffa; color: #006353; }
-        
         .cat-card.outside { border-left-color: var(--red); }
         .cat-card.outside .status-badge { background: #fff0f0; color: #c0392b; }
 
         .header-row { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;    
-            gap: 10px;             
-            margin-bottom: 20px; 
+            display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; 
         }
         
-        .cat-name { 
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            margin: 0; 
-        }
+        .cat-name { font-size: 1.8rem; font-weight: 700; margin: 0; }
         
         .status-badge {
             padding: 6px 16px; border-radius: 20px;
             font-weight: bold; font-size: 0.9rem; text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-block;
+            letter-spacing: 1px; display: inline-block;
         }
 
         .timer-display {
@@ -182,13 +111,8 @@
         }
         
         .meta-info { 
-            font-size: 1rem; 
-            color: var(--text-main); 
-            margin-bottom: 25px; 
-            min-height: 1.2em;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 20px;
-            margin-top: 15px;
+            font-size: 1rem; color: var(--text-main); margin-bottom: 25px; min-height: 1.2em;
+            border-top: 1px solid #f0f0f0; padding-top: 20px; margin-top: 15px;
         }
 
         .main-btn {
@@ -198,79 +122,95 @@
             display: flex; justify-content: center; align-items: center; gap: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
-        
         .home .main-btn { background: linear-gradient(135deg, #00b894, #00cec9); }
         .home .main-btn:active { transform: scale(0.98); background: #00b894; }
-
         .outside .main-btn { background: linear-gradient(135deg, #ff7675, #d63031); }
         .outside .main-btn:active { transform: scale(0.98); background: #d63031; }
-
         .btn-loading { opacity: 0.7; pointer-events: none; }
 
-        /* История */
+        /* --- ИСТОРИЯ --- */
         #history-log {
             width: 100%; max-width: 600px;
-            /* Убрали margin, так как body gap делает отступы */
-            margin: 0;
+            
+            /* Отступ от Истории до Кнопки выхода */
+            margin-bottom: var(--spacing);
+            
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: none; 
         }
 
         #history-log h3 {
-            text-align: center;
-            margin: 0;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            margin-bottom: 5px;
+            text-align: center; margin: 0; padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0; margin-bottom: 5px;
         }
 
         .log-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #f0f0f0;
-            text-align: left;
+            padding: 12px 0; border-bottom: 1px solid #f0f0f0; text-align: left;
         }
         .log-item:last-child { border-bottom: none; }
         
         .log-time { 
             font-size: 0.9rem; color: #333; font-weight: 600; 
-            min-width: 80px; text-align: right;
-            white-space: nowrap; 
+            min-width: 80px; text-align: right; white-space: nowrap; 
         }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
-        
         .user-avatar { width: 36px; height: 36px; border-radius: 50%; vertical-align: middle; margin-right: 0px;}
+
+        /* --- КНОПКА ВЫХОДА --- */
+        .logout-btn {
+            font-size: 1.1rem;
+            font-weight: 600; /* ПК: Пожирнее */
+            color: var(--text-main);
+            background-color: var(--card-bg);
+            padding: 15px 30px;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: none;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            
+            /* Margin тут не нужен, так как отступ снизу задан через padding-bottom у body */
+            margin: 0; 
+        }
+        .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
+        .logout-btn:active { transform: scale(0.98); }
+
+        /* --- ЭКРАН ВХОДА --- */
+        #setup {
+            background: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 380px; width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: auto; 
+        }
+
+        .google-btn {
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            background: white; color: var(--text-main); border: none; 
+            border-radius: 24px; padding: 15px 30px;
+            font-size: 1.1rem; font-weight: 600; /* ПК: Пожирнее */
+            cursor: pointer; width: 100%; transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); white-space: nowrap; 
+        }
+        .google-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); background: white; }
+        .google-btn:active { transform: scale(0.98); }
 
         /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
             
-            .google-btn, .logout-btn {
-                font-weight: 500;
-            }
+            /* Мобильные: Шрифт кнопок потоньше */
+            .google-btn, .logout-btn { font-weight: 500; }
             
-            .log-item {
-                flex-direction: column; 
-                align-items: center;    
-                gap: 5px; 
-                text-align: center;     
-            }
-            
-            .log-text { 
-                font-size: 0.9rem; 
-                text-align: center;     
-            }
-            
-            .log-time { 
-                font-size: 0.75rem; 
-                min-width: auto; 
-                margin-left: 0; 
-                color: #333;      
-                width: 100%;
-                text-align: center; 
-            }
-            
+            .log-item { flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+            .log-text { font-size: 0.9rem; text-align: center; }
+            .log-time { font-size: 0.75rem; min-width: auto; margin-left: 0; color: #333; width: 100%; text-align: center; }
             #history-log { padding: 15px; }
         }
 
