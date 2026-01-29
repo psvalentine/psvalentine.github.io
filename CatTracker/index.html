@@ -282,14 +282,14 @@
                 badge.innerText = "На улице";
                 btn.innerText = "Впустить домой 🏠";
                 // ИСПРАВЛЕНИЕ: Имя жирным шрифтом
-                info.innerHTML = `Выпустил: <b>${data.user}</b>`;
+                info.innerHTML = `Выпустил(а): <b>${data.user}</b>`;
                 startTimer(cat, data.lastChange);
             } else {
                 card.className = "cat-card home";
                 badge.innerText = "Дома";
                 btn.innerText = "Выпустить гулять 🌳";
                 // ИСПРАВЛЕНИЕ: Имя жирным шрифтом
-                info.innerHTML = `Впустил: <b>${data.user}</b>`;
+                info.innerHTML = `Впустил(а): <b>${data.user}</b>`;
                 stopTimer(cat);
                 document.getElementById(`timer-${cat}`).innerText = "00:00:00";
             }
@@ -358,4 +358,5 @@
         function pad(n) { return n < 10 ? '0' + n : n; }
     </script>
 </body>
+
 </html>
