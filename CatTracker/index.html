@@ -54,17 +54,16 @@
             gap: 15px;
         }
 
-        /* ИЗМЕНЕНО: Новый стиль для кнопки выхода (копия стиля профиля + кликабельность) */
+        /* Стиль кнопки выхода */
         .logout-btn {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #ff7675; /* Сделал текст чуть красным, как знак "выход", или можно оставить черным */
-            color: var(--text-main); /* Оставил черным для полного сходства */
+            color: var(--text-main);
             
             background-color: var(--card-bg);
             padding: 15px 30px;
-            border-radius: 24px; /* Радиус как у профиля */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* Тень как у профиля */
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             border: none;
             
             display: inline-flex;
@@ -88,9 +87,9 @@
 
         /* Setup (Вход) */
         #setup {
-            background: var(--card-bg);
+            background: var(--card-bg); /* Это подложка (фон), можно оставить или сделать прозрачной */
             padding: 40px 30px;
-            border-radius: 20px;
+            border-radius: 24px; /* Тоже скруглим углы контейнера */
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             text-align: center;
             max-width: 320px;
@@ -102,14 +101,34 @@
             margin: auto 0;
         }
 
+        /* ИЗМЕНЕНО: Кнопка Google теперь такая же красивая (как карточка) */
         .google-btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            background: white; color: #444; border: 1px solid #ddd;
-            border-radius: 10px; padding: 12px 20px; font-size: 1rem; font-weight: 600;
-            cursor: pointer; width: 100%; transition: 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; /* Отступ между иконкой и текстом */
+            
+            background: white; 
+            color: var(--text-main); 
+            
+            border: none; /* Убрали серую рамку */
+            border-radius: 24px; /* Скругление 24px */
+            padding: 15px 30px; /* Большие отступы */
+            
+            font-size: 1.1rem; 
+            font-weight: 600;
+            cursor: pointer; 
+            width: 100%; 
+            transition: transform 0.2s, box-shadow 0.2s;
+            
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* Тень как у других */
         }
-        .google-btn:hover { background: #f9f9f9; }
+        
+        .google-btn:hover { 
+            transform: translateY(-2px); /* Всплывает при наведении */
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
         .google-btn:active { transform: scale(0.98); }
 
         /* Карточки котов */
