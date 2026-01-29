@@ -75,7 +75,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
             border-left: 6px solid #dfe6e9;
-            text-align: center; /* Центрируем содержимое карточки */
+            text-align: center;
         }
 
         .cat-card.home { border-left-color: var(--green); }
@@ -84,12 +84,11 @@
         .cat-card.outside { border-left-color: var(--red); }
         .cat-card.outside .status-badge { background: #fff0f0; color: #c0392b; }
 
-        /* ИСПРАВЛЕНО: Центрирование имени и значка */
         .header-row { 
             display: flex; 
-            flex-direction: column; /* Элементы друг под другом */
-            align-items: center;    /* Выравнивание по центру */
-            gap: 10px;              /* Отступ между именем и значком */
+            flex-direction: column; 
+            align-items: center;    
+            gap: 10px;             
             margin-bottom: 20px; 
         }
         
@@ -133,9 +132,10 @@
             margin-top: 40px;
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            /* ИСПРАВЛЕНИЕ: Скрыто по умолчанию */
+            display: none; 
         }
 
-        /* ИСПРАВЛЕНО: Заголовок истории по центру */
         #history-log h3 {
             text-align: center;
             margin: 0 0 20px 0;
@@ -144,7 +144,7 @@
         .log-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid #f0f0f0;
-            text-align: left; /* Сами записи лучше оставить слева для читаемости */
+            text-align: left;
         }
         .log-item:last-child { border-bottom: none; }
         
@@ -273,23 +273,32 @@
             // ИСТОРИЯ
             const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(15));
             onSnapshot(q, (snapshot) => {
+                const historyLog = document.getElementById('history-log');
                 const list = document.getElementById('log-list');
-                list.innerHTML = "";
-                snapshot.forEach((doc) => {
-                    const d = doc.data();
-                    const date = new Date(d.timestamp);
-                    const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const dayStr = date.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
+                
+                // ИСПРАВЛЕНИЕ: Проверяем, есть ли записи
+                if (snapshot.empty) {
+                    historyLog.style.display = 'none'; // Скрываем, если пусто
+                } else {
+                    historyLog.style.display = 'block'; // Показываем, если есть данные
                     
-                    list.innerHTML += `
-                        <div class="log-item">
-                            <div class="log-text">
-                                <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "запустил(а)"} 
-                                <span style="white-space: nowrap;"><b>${d.cat}</b> ${d.isOutside ? "🌳" : "🏠"}</span>
-                            </div>
-                            <div class="log-time">${dayStr} в ${timeStr}</div>
-                        </div>`;
-                });
+                    list.innerHTML = "";
+                    snapshot.forEach((doc) => {
+                        const d = doc.data();
+                        const date = new Date(d.timestamp);
+                        const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        const dayStr = date.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
+                        
+                        list.innerHTML += `
+                            <div class="log-item">
+                                <div class="log-text">
+                                    <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "запустил(а)"} 
+                                    <span style="white-space: nowrap;"><b>${d.cat}</b> ${d.isOutside ? "🌳" : "🏠"}</span>
+                                </div>
+                                <div class="log-time">${dayStr} в ${timeStr}</div>
+                            </div>`;
+                    });
+                }
             });
 
             // СТАТУС КОТОВ
