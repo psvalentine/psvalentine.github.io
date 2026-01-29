@@ -132,7 +132,6 @@
             margin-top: 40px;
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            /* ИСПРАВЛЕНИЕ: Скрыто по умолчанию */
             display: none; 
         }
 
@@ -157,12 +156,32 @@
         
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ВАЖНЫЕ ИЗМЕНЕНИЯ) --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
-            .log-text { font-size: 0.8rem; }
-            .log-time { font-size: 0.75rem; min-width: auto; margin-left: 8px; }
+            
+            /* Блок истории превращаем в столбик */
+            .log-item {
+                flex-direction: column; /* Элементы друг под другом */
+                align-items: flex-start; /* Прижимаем влево */
+                gap: 5px; /* Отступ между текстом и датой */
+            }
+            
+            .log-text { 
+                font-size: 0.9rem; 
+            }
+            
+            /* Дата становится маленькой и серой под текстом */
+            .log-time { 
+                font-size: 0.75rem; 
+                min-width: auto; 
+                margin-left: 0; 
+                color: #999; 
+                width: 100%;
+                text-align: left; /* Дата выравнивается по левому краю */
+            }
+            
             #history-log { padding: 15px; }
         }
 
@@ -276,11 +295,10 @@
                 const historyLog = document.getElementById('history-log');
                 const list = document.getElementById('log-list');
                 
-                // ИСПРАВЛЕНИЕ: Проверяем, есть ли записи
                 if (snapshot.empty) {
-                    historyLog.style.display = 'none'; // Скрываем, если пусто
+                    historyLog.style.display = 'none'; 
                 } else {
-                    historyLog.style.display = 'block'; // Показываем, если есть данные
+                    historyLog.style.display = 'block'; 
                     
                     list.innerHTML = "";
                     snapshot.forEach((doc) => {
