@@ -156,30 +156,32 @@
         
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ВАЖНЫЕ ИЗМЕНЕНИЯ) --- */
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ИСПРАВЛЕНО) --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
             
-            /* Блок истории превращаем в столбик */
+            /* Блок истории превращаем в столбик ПО ЦЕНТРУ */
             .log-item {
                 flex-direction: column; /* Элементы друг под другом */
-                align-items: flex-start; /* Прижимаем влево */
-                gap: 5px; /* Отступ между текстом и датой */
+                align-items: center;    /* Выравнивание по центру */
+                gap: 5px; 
+                text-align: center;     /* Текст тоже по центру */
             }
             
             .log-text { 
                 font-size: 0.9rem; 
+                text-align: center;     /* Принудительно по центру */
             }
             
-            /* Дата становится маленькой и серой под текстом */
+            /* Дата под текстом, темная, по центру */
             .log-time { 
                 font-size: 0.75rem; 
                 min-width: auto; 
                 margin-left: 0; 
-                color: #999; 
+                color: #333;      /* Вернули темный цвет как на ПК */
                 width: 100%;
-                text-align: left; /* Дата выравнивается по левому краю */
+                text-align: center; /* Центрируем дату */
             }
             
             #history-log { padding: 15px; }
