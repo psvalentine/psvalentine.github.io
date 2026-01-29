@@ -51,7 +51,7 @@
             justify-content: center;
         }
 
-        /* Кнопка Google */
+        /* Кнопка Google (используем и для выхода) */
         .google-btn {
             display: flex;
             align-items: center;
@@ -180,7 +180,9 @@
             <div id="log-list">Загрузка...</div>
         </div>
         
-        <button onclick="logout()" style="margin-top: 30px; background: none; border: none; color: #aaa; cursor: pointer; text-decoration: underline;">Выйти из аккаунта</button>
+        <button class="google-btn" onclick="logout()" style="margin-top: 30px; max-width: 320px;">
+            Выйти из аккаунта
+        </button>
     </div>
 
     <script type="module">
@@ -188,7 +190,6 @@
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, addDoc } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         
-        // Добавляем импорт Аутентификации
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -203,15 +204,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app); // Инициализация Auth
+        const auth = getAuth(app); 
         const provider = new GoogleAuthProvider();
 
         const MY_CATS = ["Федя", "Кузя"];
-        let currentUser = null; // Здесь будет храниться объект пользователя
+        let currentUser = null; 
 
         // --- ЛОГИКА ВХОДА (AUTH) ---
         
-        // Глобальные функции для кнопок
         window.loginWithGoogle = () => {
             signInWithPopup(auth, provider)
                 .then((result) => {
@@ -225,28 +225,24 @@
             signOut(auth).then(() => location.reload());
         };
 
-        // Слушатель состояния (Срабатывает сам при загрузке страницы)
+        // Слушатель состояния
         onAuthStateChanged(auth, (user) => {
             const setupDiv = document.getElementById('setup');
             const appDiv = document.getElementById('app');
 
             if (user) {
-                // ПОЛЬЗОВАТЕЛЬ ВОШЕЛ
                 currentUser = user;
                 setupDiv.style.display = 'none';
                 appDiv.style.display = 'flex';
                 
-                // Имя берем из Google аккаунта или email
                 const displayName = user.displayName || user.email.split('@')[0];
                 document.getElementById('welcome-text').innerHTML = `
                     <img src="${user.photoURL}" class="user-avatar"> 
                     Хозяин: <b>${displayName}</b>
                 `;
                 
-                // Запускаем слушатели базы только если мы вошли
                 initAppListeners(); 
             } else {
-                // ПОЛЬЗОВАТЕЛЬ НЕ ВОШЕЛ
                 setupDiv.style.display = 'flex';
                 appDiv.style.display = 'none';
                 currentUser = null;
@@ -257,7 +253,6 @@
         // --- ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ---
 
         function initAppListeners() {
-            // Рендер карточек (если еще не созданы)
             const container = document.getElementById('cats-container');
             if(container.innerHTML === "") {
                 MY_CATS.forEach(cat => {
@@ -363,17 +358,6 @@
             btn.classList.add("btn-loading");
 
             try {
-                // Получаем текущий статус из UI (или можно читать из базы)
-                // Для надежности лучше читать из базы, но для скорости оставим как есть, 
-                // так как onSnapshot обновляет переменную catsData
-                // (но в данном коде catsData локальна для initAppListeners, поэтому прочитаем из DOM для простоты
-                // или сделаем catsData глобальной. В этом примере я упрощу и сделаю чтение документа).
-                
-                // Читаем актуальное состояние перед записью (безопаснее)
-                // В простом варианте просто инвертируем то, что видим.
-                
-                // ВАЖНО: Определяем newStatus. 
-                // Если кнопка сейчас "Впустить" (стиль outside), значит статус true.
                 const isCurrentlyOutside = document.getElementById(`card-${catName}`).classList.contains('outside');
                 const newStatus = !isCurrentlyOutside;
                 const now = Date.now();
