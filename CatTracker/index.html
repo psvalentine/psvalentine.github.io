@@ -234,7 +234,6 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // --- НОВЫЙ ИМПОРТ ДЛЯ УВЕДОМЛЕНИЙ ---
         import { getMessaging, getToken, onMessage } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
@@ -252,10 +251,9 @@
         const auth = getAuth(app); 
         const provider = new GoogleAuthProvider();
         
-        // --- ИНИЦИАЛИЗАЦИЯ MESSAGING ---
         const messaging = getMessaging(app);
         
-        // ⚠️ ВСТАВЬТЕ СЮДА ВАШ КЛЮЧ ИЗ КОНСОЛИ FIREBASE (Web Push certificates)
+        // ВАШ КЛЮЧ
         const vapidKey = "BEuMQQGkYXmRTcbVRN8dvKFFbsAZcBKmFQ9nhX-4udT4RAcVID2z7rH0MxDS5JzYnrMth7c7tbBFXI8J31afsC0"; 
 
         const MY_CATS = ["Федя", "Кузя"];
@@ -272,19 +270,30 @@
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        // --- ФУНКЦИЯ ЗАПРОСА РАЗРЕШЕНИЯ ---
+        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ УВЕДОМЛЕНИЙ ---
         async function requestPermission() {
             try {
-                // 1. Спрашиваем разрешение у браузера
+                // 1. Явно регистрируем Service Worker (для GitHub Pages и PWA)
+                let registration;
+                if ('serviceWorker' in navigator) {
+                    // Используем ./ чтобы искать файл в текущей папке
+                    registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+                    console.log('Service Worker зарегистрирован:', registration);
+                }
+
+                // 2. Спрашиваем разрешение
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     console.log('Разрешение на уведомления получено');
                     
-                    // 2. Получаем токен телефона
-                    const token = await getToken(messaging, { vapidKey: vapidKey });
+                    // 3. Получаем токен, используя нашу регистрацию
+                    const token = await getToken(messaging, { 
+                        vapidKey: vapidKey,
+                        serviceWorkerRegistration: registration // <--- ЭТОГО НЕ ХВАТАЛО
+                    });
+
                     if (token) {
                         console.log('Token получен:', token);
-                        // 3. Сохраняем токен в базу, чтобы сервер знал этот телефон
                         if (currentUser) {
                             await setDoc(doc(db, "fcmTokens", currentUser.uid), {
                                 token: token,
@@ -293,10 +302,10 @@
                             });
                         }
                     } else {
-                        console.log('Не удалось получить токен. Проверьте VAPID ключ.');
+                        console.log('Не удалось получить токен.');
                     }
                 } else {
-                    console.log('В разрешении на уведомления отказано');
+                    console.log('В разрешении отказано');
                 }
             } catch (err) {
                 console.log('Ошибка при настройке уведомлений:', err);
@@ -322,8 +331,6 @@
                 `;
                 
                 initAppListeners(); 
-                
-                // --- ЗАПУСКАЕМ ЗАПРОС РАЗРЕШЕНИЯ ПРИ ВХОДЕ ---
                 requestPermission(); 
                 
             } else {
@@ -336,7 +343,6 @@
         // Слушаем входящие сообщения, если сайт открыт
         onMessage(messaging, (payload) => {
             console.log('Получено сообщение (foreground): ', payload);
-            // Тут можно добавить красивую всплывашку, если захотите
         });
 
         function initAppListeners() {
