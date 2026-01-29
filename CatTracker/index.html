@@ -32,23 +32,27 @@
 
         h1 { 
             margin-top: 10px; 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
             font-size: 2rem; 
             text-align: center;
         }
         
+        /* ИЗМЕНЕНО: Стиль теперь идентичен карточкам котов */
         .subtitle { 
-            font-size: 1rem; 
+            font-size: 1.1rem;         /* Чуть крупнее текст */
+            font-weight: 600;          /* Жирнее, как в заголовках */
             color: var(--text-main); 
             margin-bottom: 35px;
-            background-color: white;
-            padding: 8px 20px;
-            border-radius: 24px; /* ИЗМЕНЕНО: Теперь закругление как у карточек */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            
+            background-color: var(--card-bg);
+            padding: 15px 30px;        /* Больше отступов, чтобы был "блок" */
+            border-radius: 24px;       /* ТОЧНО как у карточек */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* Тень как у карточек */
+            
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            border: 1px solid rgba(0,0,0,0.03);
+            gap: 15px;                 /* Чуть больше расстояние до аватарки */
+            /* border удалил, чтобы было чисто как на карточках */
         }
 
         /* Setup (Вход) */
@@ -179,7 +183,8 @@
         }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
         
-        .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 0px;}
+        /* ИСПРАВЛЕНО: Аватарка чуть крупнее для баланса */
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; vertical-align: middle; margin-right: 0px;}
 
         /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
         @media (max-width: 480px) {
