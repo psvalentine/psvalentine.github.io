@@ -75,6 +75,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
             border-left: 6px solid #dfe6e9;
+            text-align: center; /* Центрируем содержимое карточки */
         }
 
         .cat-card.home { border-left-color: var(--green); }
@@ -83,12 +84,22 @@
         .cat-card.outside { border-left-color: var(--red); }
         .cat-card.outside .status-badge { background: #fff0f0; color: #c0392b; }
 
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .cat-name { font-size: 1.6rem; font-weight: 800; margin: 0; }
+        /* ИСПРАВЛЕНО: Центрирование имени и значка */
+        .header-row { 
+            display: flex; 
+            flex-direction: column; /* Элементы друг под другом */
+            align-items: center;    /* Выравнивание по центру */
+            gap: 10px;              /* Отступ между именем и значком */
+            margin-bottom: 20px; 
+        }
+        
+        .cat-name { font-size: 1.8rem; font-weight: 800; margin: 0; }
+        
         .status-badge {
-            padding: 6px 12px; border-radius: 20px;
-            font-weight: bold; font-size: 0.85rem; text-transform: uppercase;
+            padding: 6px 16px; border-radius: 20px;
+            font-weight: bold; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 1px;
+            display: inline-block;
         }
 
         .timer-display {
@@ -97,7 +108,7 @@
         }
         
         .meta-info { 
-            font-size: 1rem; color: var(--text-main); margin-bottom: 20px; min-height: 1.2em;
+            font-size: 1rem; color: var(--text-main); margin-bottom: 25px; min-height: 1.2em;
         }
 
         .main-btn {
@@ -123,31 +134,35 @@
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
+
+        /* ИСПРАВЛЕНО: Заголовок истории по центру */
+        #history-log h3 {
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
         .log-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+            text-align: left; /* Сами записи лучше оставить слева для читаемости */
         }
         .log-item:last-child { border-bottom: none; }
         
         .log-time { 
             font-size: 0.9rem; color: #333; font-weight: 600; 
             min-width: 80px; text-align: right;
-            white-space: nowrap; /* Не дает дате переноситься */
+            white-space: nowrap; 
         }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
         
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (исправление переносов) --- */
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
         @media (max-width: 480px) {
-            .cat-name { font-size: 1.4rem; }
+            .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
-            
-            /* Уменьшаем шрифт в истории */
             .log-text { font-size: 0.8rem; }
             .log-time { font-size: 0.75rem; min-width: auto; margin-left: 8px; }
-            
-            /* Немного уменьшаем отступы в блоке истории */
             #history-log { padding: 15px; }
         }
 
@@ -172,7 +187,7 @@
         <div id="cats-container"></div>
         
         <div id="history-log">
-            <h3 style="margin: 0 0 15px 0;">📜 История похождений</h3>
+            <h3>📜 История похождений</h3>
             <div id="log-list">Загрузка...</div>
         </div>
         
@@ -266,15 +281,11 @@
                     const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     const dayStr = date.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
                     
-                    const actionIcon = d.isOutside ? "🌳" : "🏠";
-                    const actionText = d.isOutside ? "выпустил(а)" : "запустил(а)";
-                    
-                    // ИСПРАВЛЕНИЕ: "Приклеиваем" иконку к имени кота с помощью span nowrap
                     list.innerHTML += `
                         <div class="log-item">
                             <div class="log-text">
-                                <b>${d.user}</b> ${actionText} 
-                                <span style="white-space: nowrap;"><b>${d.cat}</b> ${actionIcon}</span>
+                                <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "запустил(а)"} 
+                                <span style="white-space: nowrap;"><b>${d.cat}</b> ${d.isOutside ? "🌳" : "🏠"}</span>
                             </div>
                             <div class="log-time">${dayStr} в ${timeStr}</div>
                         </div>`;
