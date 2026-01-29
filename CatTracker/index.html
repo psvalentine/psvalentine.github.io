@@ -30,10 +30,30 @@
             min-height: 100vh;
         }
 
-        h1 { margin-top: 0; margin-bottom: 5px; font-size: 1.8rem; }
+        /* ИЗМЕНЕНО: Заголовок стал чуть больше и с большим отступом снизу */
+        h1 { 
+            margin-top: 10px; 
+            margin-bottom: 15px; 
+            font-size: 2rem; 
+            text-align: center;
+        }
         
+        /* ИЗМЕНЕНО: Стиль плашки (Badge) для имени пользователя */
         .subtitle { 
-            font-size: 1.1rem; color: var(--text-main); margin-bottom: 30px; 
+            font-size: 1rem; 
+            color: var(--text-main); 
+            margin-bottom: 35px; /* Отступ до карточек */
+            
+            /* Делаем белый фон и тень */
+            background-color: white;
+            padding: 8px 20px;
+            border-radius: 50px; /* Овальная форма */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Легкая тень */
+            
+            display: inline-flex; /* Чтобы блок был по ширине контента */
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(0,0,0,0.03); /* Еле заметная граница */
         }
 
         /* Setup (Вход) */
@@ -165,7 +185,7 @@
         }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
         
-        .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 0px;}
 
         /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
         @media (max-width: 480px) {
@@ -212,6 +232,7 @@
 
     <div id="app" style="display:none; width: 100%; flex-direction: column; align-items: center;">
         <h1>🐈 Кото-Трекер</h1>
+        
         <div class="subtitle" id="welcome-text">Загрузка...</div>
 
         <div id="cats-container"></div>
@@ -270,7 +291,7 @@
                 const displayName = user.displayName || user.email.split('@')[0];
                 document.getElementById('welcome-text').innerHTML = `
                     <img src="${user.photoURL}" class="user-avatar"> 
-                    Хозяин: <b>${displayName}</b>
+                    <span>Хозяин: <b>${displayName}</b></span>
                 `;
                 initAppListeners(); 
             } else {
