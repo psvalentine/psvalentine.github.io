@@ -135,9 +135,13 @@
             display: none; 
         }
 
+        /* ИСПРАВЛЕНО: Добавлена линия под заголовком */
         #history-log h3 {
             text-align: center;
-            margin: 0 0 20px 0;
+            margin: 0;              /* Убираем лишние отступы */
+            padding-bottom: 15px;   /* Отступ от текста до линии */
+            border-bottom: 1px solid #f0f0f0; /* Линия */
+            margin-bottom: 5px;     /* Небольшой отступ до первого элемента */
         }
 
         .log-item {
@@ -156,32 +160,30 @@
         
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (ИСПРАВЛЕНО) --- */
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
             
-            /* Блок истории превращаем в столбик ПО ЦЕНТРУ */
             .log-item {
-                flex-direction: column; /* Элементы друг под другом */
-                align-items: center;    /* Выравнивание по центру */
+                flex-direction: column; 
+                align-items: center;    
                 gap: 5px; 
-                text-align: center;     /* Текст тоже по центру */
+                text-align: center;     
             }
             
             .log-text { 
                 font-size: 0.9rem; 
-                text-align: center;     /* Принудительно по центру */
+                text-align: center;     
             }
             
-            /* Дата под текстом, темная, по центру */
             .log-time { 
                 font-size: 0.75rem; 
                 min-width: auto; 
                 margin-left: 0; 
-                color: #333;      /* Вернули темный цвет как на ПК */
+                color: #333;      
                 width: 100%;
-                text-align: center; /* Центрируем дату */
+                text-align: center; 
             }
             
             #history-log { padding: 15px; }
