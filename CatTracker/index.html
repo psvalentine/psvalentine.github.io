@@ -6,10 +6,9 @@
     <title>Кото-Трекер</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
-        /* 1. ГЛАВНАЯ НАСТРОЙКА: Меняем это число, меняется расстояние ВЕЗДЕ */
+        /* 1. Глобальная настройка отступов */
         :root {
             --spacing: 25px; 
-            
             --bg-color: #f4f6f8;
             --card-bg: #ffffff;
             --text-main: #2d3436;
@@ -26,25 +25,20 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            
             min-height: 100vh;
+            padding: var(--spacing);
             
-            /* Отступы от ПОТОЛКА и ДНА сайта */
-            padding-top: var(--spacing);
-            padding-bottom: var(--spacing);
-            padding-left: 20px;
-            padding-right: 20px;
-
+            /* Для центровки лоадера и окна входа по центру экрана */
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* gap здесь не нужен для body, так как мы центруем лоадер через margin: auto */
         }
 
         /* --- ЗАГОЛОВОК --- */
         h1 { 
             margin: 0; 
-            /* Толкает "Хозяина" вниз */
-            margin-bottom: var(--spacing); 
+            margin-bottom: var(--spacing);
             font-size: 2rem; 
             text-align: center;
             line-height: 1.2;
@@ -55,11 +49,8 @@
             font-size: 1.1rem;
             font-weight: 500;
             color: var(--text-main); 
-            
             margin: 0;
-            /* Толкает "Котов" вниз */
-            margin-bottom: var(--spacing); 
-            
+            margin-bottom: var(--spacing);
             background-color: var(--card-bg);
             padding: 15px 30px;
             border-radius: 24px;
@@ -69,17 +60,15 @@
             gap: 15px;
         }
 
-        /* --- БЛОК КОТОВ --- */
+        /* --- КОНТЕЙНЕР КОТОВ --- */
         #cats-container {
             width: 100%; max-width: 600px;
             display: grid; 
-            /* Расстояние между Федей и Кузей */
             gap: var(--spacing); 
-            
-            /* Толкает "Историю" (или кнопку) вниз */
             margin-bottom: var(--spacing); 
         }
 
+        /* --- КАРТОЧКА КОТА --- */
         .cat-card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -116,10 +105,7 @@
         /* --- ИСТОРИЯ --- */
         #history-log {
             width: 100%; max-width: 600px;
-            
-            /* Толкает "Кнопку выхода" вниз */
             margin-bottom: var(--spacing);
-            
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: none; 
@@ -135,7 +121,7 @@
         /* --- КНОПКА ВЫХОДА --- */
         .logout-btn {
             font-size: 1.1rem;
-            font-weight: 600; /* Жирность для ПК */
+            font-weight: 600; 
             color: var(--text-main);
             background-color: var(--card-bg);
             padding: 15px 30px;
@@ -144,8 +130,6 @@
             border: none;
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            
-            /* У кнопки нет margin, потому что отступ снизу задан в body (padding-bottom) */
             margin: 0; 
         }
         .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
@@ -160,6 +144,9 @@
             text-align: center;
             max-width: 380px; width: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            
+            /* Это важно: скрываем по умолчанию, чтобы не мигало */
+            display: none; 
             margin: auto; 
         }
 
@@ -174,14 +161,30 @@
         .google-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); background: white; }
         .google-btn:active { transform: scale(0.98); }
 
-        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
+        /* --- ЛОАДЕР (НОВОЕ) --- */
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: auto; /* По центру экрана */
+            font-size: 1.2rem;
+            color: #636e72;
+            font-weight: 500;
+        }
+        .loader-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+
+        /* --- АДАПТАЦИЯ --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
-            
-            /* Мобильные: Шрифт кнопок потоньше */
             .google-btn, .logout-btn { font-weight: 500; }
-            
             .log-item { flex-direction: column; align-items: center; gap: 5px; text-align: center; }
             .log-text { font-size: 0.9rem; text-align: center; }
             .log-time { font-size: 0.75rem; min-width: auto; margin-left: 0; color: #333; width: 100%; text-align: center; }
@@ -192,7 +195,12 @@
 </head>
 <body>
 
-    <div id="setup">
+    <div id="loader">
+        <div class="loader-icon">🐈</div>
+        <div>Загрузка...</div>
+    </div>
+
+    <div id="setup" style="display: none;">
         <h2>🔒 Доступ ограничен</h2>
         <p style="margin-bottom: 25px; color: var(--text-main);">Войдите через Google, чтобы управлять котами.</p>
         
@@ -251,11 +259,17 @@
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
+        // ИЗМЕНЕНО: Логика переключения экранов без мигания
         onAuthStateChanged(auth, (user) => {
+            const loaderDiv = document.getElementById('loader');
             const setupDiv = document.getElementById('setup');
             const appDiv = document.getElementById('app');
 
+            // Скрываем лоадер
+            loaderDiv.style.display = 'none';
+
             if (user) {
+                // Если вошли - показываем приложение
                 currentUser = user;
                 setupDiv.style.display = 'none';
                 appDiv.style.display = 'flex';
@@ -267,6 +281,7 @@
                 `;
                 initAppListeners(); 
             } else {
+                // Если не вошли - показываем вход
                 setupDiv.style.display = 'flex';
                 appDiv.style.display = 'none';
                 currentUser = null;
