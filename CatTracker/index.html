@@ -96,9 +96,8 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
         
-        /* ИЗМЕНЕНО: Эффект работает и при наведении (hover), и при нажатии (active) */
         .main-btn:hover, .main-btn:active {
-            filter: brightness(1.1); /* Делает кнопку на 10% светлее */
+            filter: brightness(1.1); 
         }
 
         .home .main-btn { background: linear-gradient(135deg, #00b894, #00cec9); }
@@ -149,7 +148,6 @@
             text-align: center;
             max-width: 380px; width: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            
             display: none; 
             margin: auto; 
         }
@@ -183,8 +181,6 @@
         }
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-
-        /* --- АДАПТАЦИЯ --- */
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
@@ -237,6 +233,10 @@
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        
+        // --- НОВЫЙ ИМПОРТ ДЛЯ УВЕДОМЛЕНИЙ ---
+        import { getMessaging, getToken, onMessage } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
@@ -251,9 +251,18 @@
         const db = getFirestore(app);
         const auth = getAuth(app); 
         const provider = new GoogleAuthProvider();
+        
+        // --- ИНИЦИАЛИЗАЦИЯ MESSAGING ---
+        const messaging = getMessaging(app);
+        
+        // ⚠️ ВСТАВЬТЕ СЮДА ВАШ КЛЮЧ ИЗ КОНСОЛИ FIREBASE (Web Push certificates)
+        const vapidKey = "BEuMQQGkYXmRTcbVRN8dvKFFbsAZcBKmFQ9nhX-4udT4RAcVID2z7rH0MxDS5JzYnrMth7c7tbBFXI8J31afsC0"; 
 
         const MY_CATS = ["Федя", "Кузя"];
         let currentUser = null; 
+
+        const soundOut = new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg");
+        const soundIn = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
 
         window.loginWithGoogle = () => {
             signInWithPopup(auth, provider)
@@ -263,7 +272,37 @@
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        // Логика без мигания
+        // --- ФУНКЦИЯ ЗАПРОСА РАЗРЕШЕНИЯ ---
+        async function requestPermission() {
+            try {
+                // 1. Спрашиваем разрешение у браузера
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Разрешение на уведомления получено');
+                    
+                    // 2. Получаем токен телефона
+                    const token = await getToken(messaging, { vapidKey: vapidKey });
+                    if (token) {
+                        console.log('Token получен:', token);
+                        // 3. Сохраняем токен в базу, чтобы сервер знал этот телефон
+                        if (currentUser) {
+                            await setDoc(doc(db, "fcmTokens", currentUser.uid), {
+                                token: token,
+                                user: currentUser.displayName || "Unknown",
+                                lastUpdate: Date.now()
+                            });
+                        }
+                    } else {
+                        console.log('Не удалось получить токен. Проверьте VAPID ключ.');
+                    }
+                } else {
+                    console.log('В разрешении на уведомления отказано');
+                }
+            } catch (err) {
+                console.log('Ошибка при настройке уведомлений:', err);
+            }
+        }
+
         onAuthStateChanged(auth, (user) => {
             const loaderDiv = document.getElementById('loader');
             const setupDiv = document.getElementById('setup');
@@ -281,12 +320,23 @@
                     <img src="${user.photoURL}" class="user-avatar"> 
                     <span>Хозяин: <b>${displayName}</b></span>
                 `;
+                
                 initAppListeners(); 
+                
+                // --- ЗАПУСКАЕМ ЗАПРОС РАЗРЕШЕНИЯ ПРИ ВХОДЕ ---
+                requestPermission(); 
+                
             } else {
                 setupDiv.style.display = 'flex';
                 appDiv.style.display = 'none';
                 currentUser = null;
             }
+        });
+
+        // Слушаем входящие сообщения, если сайт открыт
+        onMessage(messaging, (payload) => {
+            console.log('Получено сообщение (foreground): ', payload);
+            // Тут можно добавить красивую всплывашку, если захотите
         });
 
         function initAppListeners() {
@@ -341,6 +391,17 @@
 
             // СТАТУС КОТОВ
             onSnapshot(collection(db, "status"), (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "modified") {
+                        const data = change.doc.data();
+                        if (data.isOutside) {
+                            soundOut.play().catch(e => console.log("Звук блокирован"));
+                        } else {
+                            soundIn.play().catch(e => console.log("Звук блокирован"));
+                        }
+                    }
+                });
+
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const catName = docSnap.id;
@@ -423,4 +484,3 @@
     </script>
 </body>
 </html>
-
