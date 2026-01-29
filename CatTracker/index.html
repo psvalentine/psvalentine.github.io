@@ -7,7 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
-        /* 1. Глобальная настройка отступов */
+        
         :root {
             --spacing: 25px; 
             --bg-color: #f4f6f8;
@@ -34,7 +34,6 @@
             align-items: center;
         }
 
-        /* --- ЗАГОЛОВОК --- */
         h1 { 
             margin: 0; 
             margin-bottom: var(--spacing);
@@ -43,7 +42,6 @@
             line-height: 1.2;
         }
         
-        /* --- ПЛАШКА С ИМЕНЕМ --- */
         .subtitle { 
             font-size: 1.1rem;
             font-weight: 500;
@@ -59,7 +57,6 @@
             gap: 15px;
         }
 
-        /* --- КОНТЕЙНЕР КОТОВ --- */
         #cats-container {
             width: 100%; max-width: 600px;
             display: grid; 
@@ -67,7 +64,6 @@
             margin-bottom: var(--spacing); 
         }
 
-        /* --- КАРТОЧКА КОТА --- */
         .cat-card {
             background: var(--card-bg);
             border-radius: 24px;
@@ -106,7 +102,6 @@
         .outside .main-btn:active { transform: scale(0.98); background: #d63031; }
         .btn-loading { opacity: 0.7; pointer-events: none; }
 
-        /* --- ИСТОРИЯ --- */
         #history-log {
             width: 100%; max-width: 600px;
             margin-bottom: var(--spacing);
@@ -122,7 +117,6 @@
         .log-text { font-size: 0.95rem; color: var(--text-main); }
         .user-avatar { width: 36px; height: 36px; border-radius: 50%; vertical-align: middle; margin-right: 0px;}
 
-        /* --- КНОПКА ВЫХОДА --- */
         .logout-btn {
             font-size: 1.1rem;
             font-weight: 600; 
@@ -139,7 +133,6 @@
         .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
         .logout-btn:active { transform: scale(0.98); }
 
-        /* --- ЭКРАН ВХОДА --- */
         #setup {
             background: var(--card-bg);
             padding: 40px 30px;
@@ -148,6 +141,7 @@
             text-align: center;
             max-width: 380px; width: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            
             display: none; 
             margin: auto; 
         }
@@ -163,7 +157,6 @@
         .google-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); background: white; }
         .google-btn:active { transform: scale(0.98); }
 
-        /* --- ЛОАДЕР --- */
         #loader {
             display: flex;
             flex-direction: column;
@@ -180,6 +173,7 @@
             animation: bounce 1s infinite alternate;
         }
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
 
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
@@ -233,9 +227,6 @@
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        
-        import { getMessaging, getToken, onMessage } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
@@ -250,17 +241,12 @@
         const db = getFirestore(app);
         const auth = getAuth(app); 
         const provider = new GoogleAuthProvider();
-        
-        const messaging = getMessaging(app);
-        
-        // ВАШ КЛЮЧ
-        const vapidKey = "BEuMQQGkYXmRTcbVRN8dvKFFbsAZcBKmFQ9nhX-4udT4RAcVID2z7rH0MxDS5JzYnrMth7c7tbBFXI8J31afsC0"; 
 
         const MY_CATS = ["Федя", "Кузя"];
         let currentUser = null; 
 
-        const soundOut = new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg");
-        const soundIn = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+        const soundOut = new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"); // Выпустить
+        const soundIn = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg"); // Впустить
 
         window.loginWithGoogle = () => {
             signInWithPopup(auth, provider)
@@ -269,48 +255,6 @@
         };
 
         window.logout = () => signOut(auth).then(() => location.reload());
-
-        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ УВЕДОМЛЕНИЙ ---
-        async function requestPermission() {
-            try {
-                // 1. Явно регистрируем Service Worker (для GitHub Pages и PWA)
-                let registration;
-                if ('serviceWorker' in navigator) {
-                    // Используем ./ чтобы искать файл в текущей папке
-                    registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
-                    console.log('Service Worker зарегистрирован:', registration);
-                }
-
-                // 2. Спрашиваем разрешение
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    console.log('Разрешение на уведомления получено');
-                    
-                    // 3. Получаем токен, используя нашу регистрацию
-                    const token = await getToken(messaging, { 
-                        vapidKey: vapidKey,
-                        serviceWorkerRegistration: registration // <--- ЭТОГО НЕ ХВАТАЛО
-                    });
-
-                    if (token) {
-                        console.log('Token получен:', token);
-                        if (currentUser) {
-                            await setDoc(doc(db, "fcmTokens", currentUser.uid), {
-                                token: token,
-                                user: currentUser.displayName || "Unknown",
-                                lastUpdate: Date.now()
-                            });
-                        }
-                    } else {
-                        console.log('Не удалось получить токен.');
-                    }
-                } else {
-                    console.log('В разрешении отказано');
-                }
-            } catch (err) {
-                console.log('Ошибка при настройке уведомлений:', err);
-            }
-        }
 
         onAuthStateChanged(auth, (user) => {
             const loaderDiv = document.getElementById('loader');
@@ -329,20 +273,12 @@
                     <img src="${user.photoURL}" class="user-avatar"> 
                     <span>Хозяин: <b>${displayName}</b></span>
                 `;
-                
                 initAppListeners(); 
-                requestPermission(); 
-                
             } else {
                 setupDiv.style.display = 'flex';
                 appDiv.style.display = 'none';
                 currentUser = null;
             }
-        });
-
-        // Слушаем входящие сообщения, если сайт открыт
-        onMessage(messaging, (payload) => {
-            console.log('Получено сообщение (foreground): ', payload);
         });
 
         function initAppListeners() {
@@ -365,7 +301,6 @@
                 });
             }
 
-            // ИСТОРИЯ
             const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(15));
             onSnapshot(q, (snapshot) => {
                 const historyLog = document.getElementById('history-log');
@@ -395,19 +330,7 @@
                 }
             });
 
-            // СТАТУС КОТОВ
             onSnapshot(collection(db, "status"), (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "modified") {
-                        const data = change.doc.data();
-                        if (data.isOutside) {
-                            soundOut.play().catch(e => console.log("Звук блокирован"));
-                        } else {
-                            soundIn.play().catch(e => console.log("Звук блокирован"));
-                        }
-                    }
-                });
-
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const catName = docSnap.id;
@@ -455,6 +378,14 @@
                 const newStatus = !isCurrentlyOutside;
                 const now = Date.now();
                 const userName = currentUser.displayName || currentUser.email.split('@')[0];
+
+
+                if (newStatus) {
+                    soundOut.play().catch(e => console.log("Звук не сработал"));
+                } else {
+
+                    soundIn.play().catch(e => console.log("Звук не сработал"));
+                }
 
                 await setDoc(doc(db, "status", catName), {
                     isOutside: newStatus, lastChange: now, user: userName
