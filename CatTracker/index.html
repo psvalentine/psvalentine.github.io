@@ -6,10 +6,7 @@
     <title>Кото-Трекер</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
-        /* ВАЖНОЕ ИСПРАВЛЕНИЕ: Это убирает лишние прокрутки */
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         :root {
             --bg-color: #f4f6f8;
@@ -33,17 +30,10 @@
             min-height: 100vh;
         }
 
-        /* ИСПРАВЛЕНО: убираем верхний отступ, который толкал контент вниз */
-        h1 { 
-            margin-top: 0; 
-            margin-bottom: 5px; 
-            font-size: 1.8rem; 
-        }
+        h1 { margin-top: 0; margin-bottom: 5px; font-size: 1.8rem; }
         
         .subtitle { 
-            font-size: 1.1rem; 
-            color: var(--text-main); 
-            margin-bottom: 30px; 
+            font-size: 1.1rem; color: var(--text-main); margin-bottom: 30px; 
         }
 
         /* Setup (Вход) */
@@ -59,26 +49,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Центрируем окно входа по вертикали, если экран большой */
             margin: auto 0;
         }
 
-        /* Кнопка Google (используем и для выхода) */
         .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: white;
-            color: #444;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: white; color: #444; border: 1px solid #ddd;
+            border-radius: 10px; padding: 12px 20px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; width: 100%; transition: 0.2s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .google-btn:hover { background: #f9f9f9; }
@@ -92,8 +70,7 @@
 
         .cat-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 25px;
+            border-radius: 24px; padding: 25px;
             position: relative;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
@@ -120,13 +97,9 @@
         }
         
         .meta-info { 
-            font-size: 1rem; 
-            color: var(--text-main); 
-            margin-bottom: 20px; 
-            min-height: 1.2em;
+            font-size: 1rem; color: var(--text-main); margin-bottom: 20px; min-height: 1.2em;
         }
 
-        /* Кнопка действия */
         .main-btn {
             width: 100%; padding: 16px; border: none; border-radius: 16px;
             font-size: 1.1rem; font-weight: 700; cursor: pointer;
@@ -157,15 +130,26 @@
         .log-item:last-child { border-bottom: none; }
         
         .log-time { 
-            font-size: 0.9rem; 
-            color: #333; 
-            font-weight: 600; 
-            min-width: 80px;
-            text-align: right;
+            font-size: 0.9rem; color: #333; font-weight: 600; 
+            min-width: 80px; text-align: right;
+            white-space: nowrap; /* Не дает дате переноситься */
         }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
         
         .user-avatar { width: 30px; height: 30px; border-radius: 50%; vertical-align: middle; margin-right: 8px;}
+
+        /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (исправление переносов) --- */
+        @media (max-width: 480px) {
+            .cat-name { font-size: 1.4rem; }
+            .timer-display { font-size: 2rem; }
+            
+            /* Уменьшаем шрифт в истории */
+            .log-text { font-size: 0.8rem; }
+            .log-time { font-size: 0.75rem; min-width: auto; margin-left: 8px; }
+            
+            /* Немного уменьшаем отступы в блоке истории */
+            #history-log { padding: 15px; }
+        }
 
     </style>
 </head>
@@ -201,7 +185,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, addDoc } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -222,22 +205,14 @@
         const MY_CATS = ["Федя", "Кузя"];
         let currentUser = null; 
 
-        // --- ЛОГИКА ВХОДА (AUTH) ---
-        
         window.loginWithGoogle = () => {
             signInWithPopup(auth, provider)
-                .then((result) => {
-                    console.log("Успешный вход:", result.user.email);
-                }).catch((error) => {
-                    alert("Ошибка входа: " + error.message);
-                });
+                .then((result) => console.log("Успех"))
+                .catch((error) => alert("Ошибка входа: " + error.message));
         };
 
-        window.logout = () => {
-            signOut(auth).then(() => location.reload());
-        };
+        window.logout = () => signOut(auth).then(() => location.reload());
 
-        // Слушатель состояния
         onAuthStateChanged(auth, (user) => {
             const setupDiv = document.getElementById('setup');
             const appDiv = document.getElementById('app');
@@ -252,7 +227,6 @@
                     <img src="${user.photoURL}" class="user-avatar"> 
                     Хозяин: <b>${displayName}</b>
                 `;
-                
                 initAppListeners(); 
             } else {
                 setupDiv.style.display = 'flex';
@@ -260,9 +234,6 @@
                 currentUser = null;
             }
         });
-
-
-        // --- ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ---
 
         function initAppListeners() {
             const container = document.getElementById('cats-container');
@@ -274,11 +245,8 @@
                                 <h2 class="cat-name">${cat}</h2>
                                 <span class="status-badge" id="badge-${cat}">Дома</span>
                             </div>
-                            
                             <div class="timer-display" id="timer-${cat}" style="display: none;">00:00:00</div>
-                            
                             <div class="meta-info" id="info-${cat}">Нет данных</div>
-                            
                             <button class="main-btn" id="btn-${cat}" onclick="handleToggle('${cat}')">
                                 Выпустить гулять 🌳
                             </button>
@@ -287,26 +255,7 @@
                 });
             }
 
-            let catsData = {};
-
-            // 1. Слушаем статус котов
-            onSnapshot(collection(db, "status"), (snapshot) => {
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const catName = docSnap.id;
-                    catsData[catName] = data;
-                    if (document.getElementById(`card-${catName}`)) {
-                        updateUI(catName, data);
-                    }
-                });
-            }, (error) => {
-                console.error("Ошибка доступа:", error);
-                if(error.code === 'permission-denied') {
-                    alert("У вас нет доступа к базе данных! Попросите владельца добавить ваш Email в правила.");
-                }
-            });
-
-            // 2. Слушаем историю
+            // ИСТОРИЯ
             const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(15));
             onSnapshot(q, (snapshot) => {
                 const list = document.getElementById('log-list');
@@ -320,18 +269,30 @@
                     const actionIcon = d.isOutside ? "🌳" : "🏠";
                     const actionText = d.isOutside ? "выпустил(а)" : "запустил(а)";
                     
+                    // ИСПРАВЛЕНИЕ: "Приклеиваем" иконку к имени кота с помощью span nowrap
                     list.innerHTML += `
                         <div class="log-item">
                             <div class="log-text">
-                                <b>${d.user}</b> ${actionText} <b>${d.cat}</b> ${actionIcon}
+                                <b>${d.user}</b> ${actionText} 
+                                <span style="white-space: nowrap;"><b>${d.cat}</b> ${actionIcon}</span>
                             </div>
                             <div class="log-time">${dayStr} в ${timeStr}</div>
                         </div>`;
                 });
             });
+
+            // СТАТУС КОТОВ
+            onSnapshot(collection(db, "status"), (snapshot) => {
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const catName = docSnap.id;
+                    if (document.getElementById(`card-${catName}`)) {
+                        updateUI(catName, data);
+                    }
+                });
+            });
         }
 
-        // Обновление UI
         function updateUI(cat, data) {
             const card = document.getElementById(`card-${cat}`);
             const badge = document.getElementById(`badge-${cat}`);
@@ -344,7 +305,6 @@
                 badge.innerText = "На улице";
                 btn.innerText = "Впустить домой 🏠";
                 info.innerHTML = `Выпустил(а): <b>${data.user}</b>`;
-                
                 timer.style.display = "block";
                 startTimer(cat, data.lastChange);
             } else {
@@ -352,20 +312,16 @@
                 badge.innerText = "Дома";
                 btn.innerText = "Выпустить гулять 🌳";
                 info.innerHTML = `Впустил(а): <b>${data.user}</b>`;
-                
                 timer.style.display = "none";
                 stopTimer(cat);
                 timer.innerText = "00:00:00";
             }
         }
 
-        // Обработчик нажатия
         window.handleToggle = async (catName) => {
             if(!currentUser) return alert("Сначала войдите!");
-
             const btn = document.getElementById(`btn-${catName}`);
             const oldText = btn.innerText;
-            
             btn.innerText = "⏳ Секунду...";
             btn.classList.add("btn-loading");
 
@@ -375,53 +331,36 @@
                 const now = Date.now();
                 const userName = currentUser.displayName || currentUser.email.split('@')[0];
 
-                // 1. Пишем статус
                 await setDoc(doc(db, "status", catName), {
-                    isOutside: newStatus,
-                    lastChange: now,
-                    user: userName
+                    isOutside: newStatus, lastChange: now, user: userName
                 });
-
-                // 2. Пишем историю
                 await addDoc(collection(db, "history"), {
-                    cat: catName,
-                    isOutside: newStatus,
-                    user: userName,
-                    timestamp: now
+                    cat: catName, isOutside: newStatus, user: userName, timestamp: now
                 });
-                
             } catch (e) {
                 alert("Ошибка: " + e.message);
-                console.error(e);
                 btn.innerText = oldText;
             } finally {
                 btn.classList.remove("btn-loading");
             }
         };
 
-        // Таймеры
         let intervals = {};
         function startTimer(cat, startTime) {
             if (intervals[cat]) clearInterval(intervals[cat]);
-            
             const tick = () => {
                 const diff = Date.now() - startTime;
                 if (diff < 0) return;
-
                 const h = Math.floor(diff / 3600000);
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
-                
                 const el = document.getElementById(`timer-${cat}`);
                 if(el) el.innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
             };
             tick();
             intervals[cat] = setInterval(tick, 1000);
         }
-
-        function stopTimer(cat) {
-            if (intervals[cat]) clearInterval(intervals[cat]);
-        }
+        function stopTimer(cat) { if (intervals[cat]) clearInterval(intervals[cat]); }
         function pad(n) { return n < 10 ? '0' + n : n; }
     </script>
 </body>
