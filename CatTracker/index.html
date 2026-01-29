@@ -106,8 +106,16 @@
             margin: 10px 0; color: var(--text-main); letter-spacing: -1px;
         }
         
+        /* ИСПРАВЛЕНО: Добавлена линия сверху */
         .meta-info { 
-            font-size: 1rem; color: var(--text-main); margin-bottom: 25px; min-height: 1.2em;
+            font-size: 1rem; 
+            color: var(--text-main); 
+            margin-bottom: 25px; 
+            min-height: 1.2em;
+            
+            border-top: 1px solid #f0f0f0; /* Линия */
+            padding-top: 20px;            /* Отступ от линии до текста */
+            margin-top: 15px;             /* Отступ от верха до линии */
         }
 
         .main-btn {
@@ -135,13 +143,12 @@
             display: none; 
         }
 
-        /* ИСПРАВЛЕНО: Добавлена линия под заголовком */
         #history-log h3 {
             text-align: center;
-            margin: 0;              /* Убираем лишние отступы */
-            padding-bottom: 15px;   /* Отступ от текста до линии */
-            border-bottom: 1px solid #f0f0f0; /* Линия */
-            margin-bottom: 5px;     /* Небольшой отступ до первого элемента */
+            margin: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 5px;
         }
 
         .log-item {
