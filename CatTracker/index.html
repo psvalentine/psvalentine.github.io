@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кото-Трекер</title>
-	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
         :root {
             --bg-color: #f4f6f8;
             --card-bg: #ffffff;
-            --text-main: #2d3436; /* Почти черный цвет текста */
+            --text-main: #2d3436;
             --text-sec: #636e72;
             --green: #00b894;
             --red: #ff7675;
@@ -30,10 +30,9 @@
 
         h1 { margin-bottom: 5px; font-size: 1.8rem; }
         
-        /* ИСПРАВЛЕНИЕ 1: Сделал шрифт темным и чуть крупнее */
         .subtitle { 
             font-size: 1.1rem; 
-            color: var(--text-main); /* Теперь черный */
+            color: var(--text-main); 
             margin-bottom: 30px; 
         }
 
@@ -89,12 +88,13 @@
         .timer-display {
             font-size: 2.5rem; font-family: 'Courier New', monospace; font-weight: bold;
             margin: 10px 0; color: var(--text-main); letter-spacing: -1px;
+            /* По умолчанию скрыт в CSS, но мы это переопределяем в HTML/JS, 
+               так что здесь можно оставить как есть */
         }
         
-        /* ИСПРАВЛЕНИЕ 2: Инфо под таймером теперь черное */
         .meta-info { 
             font-size: 1rem; 
-            color: var(--text-main); /* Теперь черный */
+            color: var(--text-main); 
             margin-bottom: 20px; 
             min-height: 1.2em;
         }
@@ -129,11 +129,10 @@
         }
         .log-item:last-child { border-bottom: none; }
         
-        /* ИСПРАВЛЕНИЕ 3: Дата и время стали черными и заметными */
         .log-time { 
             font-size: 0.9rem; 
-            color: #333; /* Темный цвет вместо светло-серого */
-            font-weight: 600; /* Жирнее */
+            color: #333; 
+            font-weight: 600; 
             min-width: 80px;
             text-align: right;
         }
@@ -191,7 +190,6 @@
         if(storedUser) {
             setupDiv.style.display = 'none';
             appDiv.style.display = 'flex';
-            // ИСПРАВЛЕНИЕ: Используем innerHTML чтобы сделать имя жирным <b>
             document.getElementById('welcome-text').innerHTML = `Хозяин: <b>${storedUser}</b>`;
         } else {
             appDiv.style.display = 'none';
@@ -219,7 +217,8 @@
                         <span class="status-badge" id="badge-${cat}">Дома</span>
                     </div>
                     
-                    <div class="timer-display" id="timer-${cat}">00:00:00</div>
+                    <div class="timer-display" id="timer-${cat}" style="display: none;">00:00:00</div>
+                    
                     <div class="meta-info" id="info-${cat}">Нет данных</div>
                     
                     <button class="main-btn" id="btn-${cat}" onclick="handleToggle('${cat}')">
@@ -276,22 +275,29 @@
             const badge = document.getElementById(`badge-${cat}`);
             const btn = document.getElementById(`btn-${cat}`);
             const info = document.getElementById(`info-${cat}`);
+            const timer = document.getElementById(`timer-${cat}`); // Получаем элемент таймера
 
             if (data.isOutside) {
                 card.className = "cat-card outside";
                 badge.innerText = "На улице";
                 btn.innerText = "Впустить домой 🏠";
-                // ИСПРАВЛЕНИЕ: Имя жирным шрифтом
                 info.innerHTML = `Выпустил(а): <b>${data.user}</b>`;
+                
+                // ИСПРАВЛЕНИЕ: Показываем таймер
+                timer.style.display = "block";
+                
                 startTimer(cat, data.lastChange);
             } else {
                 card.className = "cat-card home";
                 badge.innerText = "Дома";
                 btn.innerText = "Выпустить гулять 🌳";
-                // ИСПРАВЛЕНИЕ: Имя жирным шрифтом
                 info.innerHTML = `Впустил(а): <b>${data.user}</b>`;
+                
+                // ИСПРАВЛЕНИЕ: Скрываем таймер
+                timer.style.display = "none";
+                
                 stopTimer(cat);
-                document.getElementById(`timer-${cat}`).innerText = "00:00:00";
+                timer.innerText = "00:00:00";
             }
         }
 
@@ -358,5 +364,4 @@
         function pad(n) { return n < 10 ? '0' + n : n; }
     </script>
 </body>
-
 </html>
