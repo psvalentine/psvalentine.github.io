@@ -94,6 +94,12 @@
             display: flex; justify-content: center; align-items: center; gap: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+        
+        /* ИЗМЕНЕНО: Эффект работает и при наведении (hover), и при нажатии (active) */
+        .main-btn:hover, .main-btn:active {
+            filter: brightness(1.1); /* Делает кнопку на 10% светлее */
+        }
+
         .home .main-btn { background: linear-gradient(135deg, #00b894, #00cec9); }
         .home .main-btn:active { transform: scale(0.98); background: #00b894; }
         .outside .main-btn { background: linear-gradient(135deg, #ff7675, #d63031); }
@@ -166,9 +172,8 @@
             justify-content: center;
             margin: auto;
             font-size: 1.2rem;
-            /* ИЗМЕНЕНО: Теперь цвет темный, как у основного текста */
             color: var(--text-main); 
-            font-weight: 600; /* Чуть жирнее, чтобы лучше читалось */
+            font-weight: 600; 
         }
         .loader-icon {
             font-size: 3rem;
