@@ -6,7 +6,7 @@
     <title>Кото-Трекер</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
     <style>
-        /* 1. Глобальная настройка отступов. Поменяйте 25px на любое число, и изменится ВЕЗДЕ. */
+        /* 1. Глобальная настройка отступов (измените 25px тут, и поменяется везде) */
         :root {
             --spacing: 25px; 
             --bg-color: #f4f6f8;
@@ -26,24 +26,22 @@
             color: var(--text-main);
             margin: 0;
             
-            /* ИСПРАВЛЕНИЕ: Используем min-height вместо height, чтобы блоки не наезжали */
+            /* ВАЖНО: min-height растягивает фон, но дает скроллить, если контент не влезает */
             min-height: 100vh;
             
-            /* Отступы от самого верха и самого низа страницы */
-            padding-top: var(--spacing);
-            padding-bottom: var(--spacing);
-            padding-left: 20px;
-            padding-right: 20px;
+            /* Единые отступы от краев экрана */
+            padding: var(--spacing); 
 
+            /* FLEXBOX GAP - это и есть секрет ровных отступов */
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: var(--spacing); /* Создает ровно 25px между ВСЕМИ блоками */
         }
 
         /* --- ЗАГОЛОВОК --- */
         h1 { 
-            margin: 0; /* Обнуляем старые отступы */
-            margin-bottom: var(--spacing); /* Отступ до имени */
+            margin: 0; /* Убираем margin, так как gap в body уже делает отступ */
             font-size: 2rem; 
             text-align: center;
             line-height: 1.2;
@@ -55,8 +53,7 @@
             font-weight: 500;
             color: var(--text-main); 
             
-            margin: 0;
-            margin-bottom: var(--spacing); /* Отступ до Феде */
+            margin: 0; /* Убираем margin */
             
             background-color: var(--card-bg);
             padding: 15px 30px;
@@ -70,11 +67,11 @@
         /* --- КОНТЕЙНЕР КОТОВ --- */
         #cats-container {
             width: 100%; max-width: 600px;
+            margin: 0; /* Убираем margin */
+            
             display: grid; 
-            /* Отступ между Федей и Кузей */
+            /* Отступ между котами берем из той же переменной */
             gap: var(--spacing); 
-            /* Отступ от Кузи до Истории */
-            margin-bottom: var(--spacing); 
         }
 
         /* --- КАРТОЧКА КОТА --- */
@@ -132,8 +129,7 @@
         #history-log {
             width: 100%; max-width: 600px;
             
-            /* Отступ от Истории до Кнопки выхода */
-            margin-bottom: var(--spacing);
+            margin: 0; /* Убираем margin */
             
             background: white; border-radius: 20px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -171,8 +167,7 @@
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             
-            /* Margin тут не нужен, так как отступ снизу задан через padding-bottom у body */
-            margin: 0; 
+            margin: 0; /* Убираем margin */
         }
         .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
         .logout-btn:active { transform: scale(0.98); }
