@@ -1,6 +1,6 @@
 {
   "name": "Кото-Трекер",
-  "short_name": "Коты",
+  "short_name": "Кото-Трекер",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f4f6f8",
@@ -17,4 +17,5 @@
       "type": "image/png"
     }
   ]
+
 }
