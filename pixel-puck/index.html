@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Puck</title>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <style>
+        body {
+            margin: 0;
+            background-color: #1a0022;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            touch-action: none;
+            user-select: none;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 480px;
+            max-height: 100vh;
+            background-color: #2a0033;
+            box-shadow: 0 0 50px rgba(20, 0, 40, 0.8);
+            overflow: hidden;
+            border-left: 2px solid #550066;
+            border-right: 2px solid #550066;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #ui {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            pointer-events: none;
+            z-index: 10;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        #start-hint {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            animation: blink 1.5s infinite;
+            font-size: 24px;
+            pointer-events: none;
+            text-shadow: 2px 2px 0 #000;
+            display: block;
+            z-index: 20;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #orientation-lock {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        #orientation-lock svg {
+            width: 100px; height: 100px;
+            fill: white;
+            animation: rotate-phone 2s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+        @keyframes rotate-phone { 0% { transform: rotate(-90deg); } 50% { transform: rotate(0deg); } 100% { transform: rotate(-90deg); } }
+        @media screen and (orientation: landscape) and (max-height: 600px) { #orientation-lock { display: flex !important; } }
+    </style>
+</head>
+<body>
+
+<div id="orientation-lock">
+    <svg viewBox="0 0 24 24"><path d="M17,1.01L7,1C5.9,1 5,1.9 5,3v18c0,1.1 0.9,2 2,2h10c1.1,0 2-0.9 2-2V3C19,1.9 18.1,1.01 17,1.01z M17,19H7V5h10V19z"/></svg>
+    <h2>PLEASE ROTATE<br>YOUR DEVICE</h2>
+</div>
+
+<div id="game-container">
+    <div id="ui">
+        <h2>LVL: <span id="levelDisplay">01</span></h2>
+        <p>MOVES: <span id="movesDisplay">00</span></p>
+    </div>
+    <div id="start-hint">TAP TO START GAME</div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+// --- AUDIO ENGINE ---
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = new AudioContext();
+
+const MusicEngine = {
+    isPlaying: false, step: 0, tempo: 140, timer: null,
+    melodyPattern: [392,0,392,523,392,0,329,0, 349,0,349,440,349,0,293,0, 329,0,329,392,329,0,261,0, 293,293,329,349,392,0,196,0],
+    bassPattern: [130,0,130,0,130,0,130,0, 110,0,110,0,110,0,110,0, 130,0,130,0,130,0,130,0, 146,0,146,0,196,0,98,0],
+    init: function() {
+        if (this.isPlaying) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        this.isPlaying = true; this.tick();
+    },
+    tick: function() {
+        const t = audioCtx.currentTime; const stepIdx = this.step % 32;
+        const note = this.melodyPattern[stepIdx % this.melodyPattern.length];
+        if (note) {
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'square';
+            osc.frequency.setValueAtTime(note, t); osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(t); gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1); osc.stop(t + 0.1);
+        }
+        const bass = this.bassPattern[stepIdx % this.bassPattern.length];
+        if (bass && stepIdx % 2 === 0) { 
+            const oscB = audioCtx.createOscillator(); const gainB = audioCtx.createGain(); oscB.type = 'triangle';
+            oscB.frequency.setValueAtTime(bass, t); oscB.connect(gainB); gainB.connect(audioCtx.destination);
+            oscB.start(t); gainB.gain.setValueAtTime(0.1, t); gainB.gain.linearRampToValueAtTime(0, t + 0.3); oscB.stop(t + 0.3);
+        }
+        this.step++; this.timer = setTimeout(() => this.tick(), this.tempo);
+    }
+};
+
+function playSfx(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    
+    if (type === 'hit') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(100, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'win') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(523, audioCtx.currentTime); osc.frequency.setValueAtTime(1046, audioCtx.currentTime + 0.1); 
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4); osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    } else if (type === 'gameover') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.6);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+    }
+}
+
+// --- GRAPHICS ---
+function createPatternCanvas(width, height, drawFn) {
+    const c = document.createElement('canvas'); c.width = width; c.height = height;
+    const ctx = c.getContext('2d'); drawFn(ctx, width, height); return c;
+}
+const wallPatternImg = createPatternCanvas(32, 32, (ctx, w, h) => {
+    ctx.fillStyle = '#442233'; ctx.fillRect(0,0,w,h); 
+    ctx.fillStyle = '#7a5b6e'; ctx.fillRect(2,2,12,12); ctx.fillRect(18,18,12,12); ctx.fillRect(18,2,12,12); ctx.fillRect(2,18,12,12);
+    ctx.fillStyle = '#000'; ctx.fillRect(0,16,32,2); ctx.fillRect(16,0,2,32); 
+    ctx.fillStyle = '#dcbadd'; ctx.fillRect(4,4,2,2); ctx.fillRect(20,4,2,2); 
+});
+const icePatternImg = createPatternCanvas(64, 64, (ctx, w, h) => {
+    ctx.fillStyle = '#1a0033'; ctx.fillRect(0,0,w,h); 
+    ctx.fillStyle = '#440066'; for(let i=0; i<30; i++) { ctx.fillRect(Math.random()*w, Math.random()*h, 2, 2); }
+    ctx.strokeStyle = '#330044'; ctx.lineWidth = 2; ctx.strokeRect(0,0,w,h);
+});
+const targetPatternImg = createPatternCanvas(20, 20, (ctx, w, h) => {
+    ctx.fillStyle = '#002200'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = '#00ff00'; ctx.fillRect(0,0,10,10); ctx.fillRect(10,10,10,10);
+});
+
+// --- GAME LOGIC ---
+const canvas = document.getElementById('gameCanvas');
+const container = document.getElementById('game-container');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+let wallPattern, icePattern, targetPattern;
+const gameState = {
+    level: 0, moves: 0, drag: false,
+    dragStart: {x:0, y:0}, dragCurr: {x:0, y:0}, moving: false
+};
+const FRICTION = 0.98; const MAX_POWER = 20; const POWER_SCALE = 0.2; const BOUNCE = 0.8;
+const puck = { x:0, y:0, r:16, vx:0, vy:0 };
+
+const levels = [
+    { start: {x:0.5, y:0.8}, end: {x:0.5, y:0.1, w:0.2, h:0.1}, moves: 2, walls: [{x:0.3, y:0.4, w:0.4, h:0.05}] },
+    { start: {x:0.1, y:0.8}, end: {x:0.8, y:0.1, w:0.15, h:0.1}, moves: 3, walls: [{x:0, y:0.5, w:0.7, h:0.05}, {x:0.4, y:0.25, w:0.6, h:0.05}] },
+    // УРОВЕНЬ 3: 3 ХОДА (БЫЛО 4)
+    { 
+        start: {x:0.5, y:0.9}, 
+        end: {x:0.4, y:0, w:0.2, h:0.1}, 
+        moves: 3, // <--- ИЗМЕНЕНО НА 3
+        walls: [
+            {x:0.2, y:0.2, w:0.05, h:0.6}, 
+            {x:0.75, y:0.2, w:0.05, h:0.6}, 
+            {x:0.2, y:0.8, w:0.6, h:0.05}
+        ] 
+    }
+];
+
+let levelData = null;
+
+function init() {
+    wallPattern = ctx.createPattern(wallPatternImg, 'repeat');
+    icePattern = ctx.createPattern(icePatternImg, 'repeat');
+    targetPattern = ctx.createPattern(targetPatternImg, 'repeat');
+    resize(); loadLevel(0); loop();
+}
+
+function resize() {
+    canvas.width = container.clientWidth; canvas.height = container.clientHeight;
+    wallPattern = ctx.createPattern(wallPatternImg, 'repeat');
+    icePattern = ctx.createPattern(icePatternImg, 'repeat');
+    targetPattern = ctx.createPattern(targetPatternImg, 'repeat');
+    if(levelData) loadLevel(gameState.level);
+}
+
+function loadLevel(idx) {
+    if (idx >= levels.length) idx = 0;
+    gameState.level = idx; const raw = levels[idx];
+    levelData = {
+        end: { x: raw.end.x*canvas.width-(raw.end.w*canvas.width/2), y: raw.end.y*canvas.height, w: raw.end.w*canvas.width, h: raw.end.h*canvas.height },
+        walls: raw.walls.map(w => ({ x: w.x*canvas.width, y: w.y*canvas.height, w: w.w*canvas.width, h: w.h*canvas.height }))
+    };
+    puck.x = raw.start.x*canvas.width; puck.y = raw.start.y*canvas.height; puck.vx = 0; puck.vy = 0;
+    gameState.moves = raw.moves; gameState.moving = false;
+    
+    const hintEl = document.getElementById('start-hint');
+    hintEl.innerText = "TAP TO START GAME";
+    hintEl.style.color = "rgba(255,255,255,0.7)";
+    hintEl.style.animation = "blink 1.5s infinite";
+    hintEl.style.display = 'block';
+    updateUI();
+}
+
+function updateUI() {
+    document.getElementById('levelDisplay').innerText = (gameState.level + 1).toString().padStart(2, '0');
+    document.getElementById('movesDisplay').innerText = gameState.moves.toString().padStart(2, '0');
+}
+
+function getPos(e) {
+    MusicEngine.init();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function startDrag(e) {
+    if (gameState.moving || gameState.moves <= 0) return;
+    document.getElementById('start-hint').style.display = 'none';
+    const p = getPos(e);
+    if (Math.hypot(p.x - puck.x, p.y - puck.y) < puck.r * 3) {
+        gameState.drag = true; gameState.dragStart = {x: puck.x, y: puck.y}; gameState.dragCurr = p;
+    }
+}
+function moveDrag(e) { if (gameState.drag) gameState.dragCurr = getPos(e); }
+function endDrag() {
+    if (!gameState.drag) return;
+    gameState.drag = false;
+    let dx = gameState.dragStart.x - gameState.dragCurr.x; let dy = gameState.dragStart.y - gameState.dragCurr.y;
+    if (Math.hypot(dx, dy) > 5) {
+        puck.vx = dx * POWER_SCALE; puck.vy = dy * POWER_SCALE;
+        const s = Math.hypot(puck.vx, puck.vy);
+        if (s > MAX_POWER) { puck.vx = (puck.vx/s)*MAX_POWER; puck.vy = (puck.vy/s)*MAX_POWER; }
+        gameState.moving = true; gameState.moves--; updateUI();
+    }
+}
+
+function update() {
+    if (!gameState.moving) return;
+    puck.x += puck.vx; puck.y += puck.vy; puck.vx *= FRICTION; puck.vy *= FRICTION;
+    if (Math.hypot(puck.vx, puck.vy) < 0.1) { puck.vx = 0; puck.vy = 0; gameState.moving = false; checkWinLose(); }
+    
+    let hit = false; let speed = Math.hypot(puck.vx, puck.vy);
+    if (puck.x - puck.r < 0) { puck.x = puck.r; puck.vx *= -BOUNCE; hit=true; }
+    if (puck.x + puck.r > canvas.width) { puck.x = canvas.width - puck.r; puck.vx *= -BOUNCE; hit=true; }
+    if (puck.y - puck.r < 0) { puck.y = puck.r; puck.vy *= -BOUNCE; hit=true; }
+    if (puck.y + puck.r > canvas.height) { puck.y = canvas.height - puck.r; puck.vy *= -BOUNCE; hit=true; }
+
+    levelData.walls.forEach(w => {
+        let cx = Math.max(w.x, Math.min(puck.x, w.x + w.w)); let cy = Math.max(w.y, Math.min(puck.y, w.y + w.h));
+        let dx = puck.x - cx; let dy = puck.y - cy;
+        if (Math.hypot(dx, dy) < puck.r) {
+            hit = true;
+            let ox = puck.r - Math.abs(dx); let oy = puck.r - Math.abs(dy);
+            if (ox < oy) { puck.vx *= -BOUNCE; puck.x += dx > 0 ? ox : -ox; }
+            else { puck.vy *= -BOUNCE; puck.y += dy > 0 ? oy : -oy; }
+        }
+    });
+    if (hit && speed > 1) playSfx('hit');
+}
+
+function checkWinLose() {
+    const t = levelData.end;
+    const hintEl = document.getElementById('start-hint');
+
+    if (puck.x > t.x && puck.x < t.x + t.w && puck.y > t.y && puck.y < t.y + t.h) {
+        playSfx('win'); 
+        hintEl.innerText = "VICTORY!";
+        hintEl.style.color = '#0f0';
+        hintEl.style.animation = 'none';
+        hintEl.style.display = 'block';
+        setTimeout(() => loadLevel(gameState.level+1), 1500);
+    } else if (gameState.moves <= 0) {
+        playSfx('gameover');
+        
+        hintEl.innerText = "GAME OVER";
+        hintEl.style.color = '#ff0000';
+        hintEl.style.animation = 'none';
+        hintEl.style.display = 'block';
+        setTimeout(() => loadLevel(gameState.level), 2000);
+    }
+}
+
+function draw() {
+    ctx.fillStyle = icePattern; ctx.fillRect(0,0,canvas.width, canvas.height);
+    const t = levelData.end;
+    ctx.fillStyle = targetPattern;
+    ctx.save(); ctx.translate((Date.now()/50)%20, 0); ctx.fillRect(t.x-((Date.now()/50)%20), t.y, t.w, t.h); ctx.restore();
+    ctx.strokeStyle = '#0f0'; ctx.lineWidth = 4; ctx.strokeRect(t.x, t.y, t.w, t.h);
+
+    ctx.fillStyle = wallPattern; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+    levelData.walls.forEach(w => {
+        ctx.fillRect(w.x, w.y, w.w, w.h); ctx.strokeRect(w.x, w.y, w.w, w.h);
+        ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(w.x+5, w.y+w.h, w.w, 5); ctx.fillRect(w.x+w.w, w.y+5, 5, w.h-5); ctx.fillStyle = wallPattern;
+    });
+
+    if (gameState.drag) {
+        ctx.beginPath(); ctx.moveTo(puck.x, puck.y); ctx.lineTo(gameState.dragCurr.x, gameState.dragCurr.y);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+        let dx = gameState.dragStart.x - gameState.dragCurr.x; let dy = gameState.dragStart.y - gameState.dragCurr.y;
+        ctx.beginPath(); ctx.moveTo(puck.x, puck.y); ctx.lineTo(puck.x+dx, puck.y+dy); ctx.strokeStyle = '#f00'; ctx.lineWidth = 4; ctx.stroke();
+    }
+
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(puck.x, puck.y, puck.r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#f0f'; ctx.beginPath(); ctx.arc(puck.x, puck.y, puck.r*0.7, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillRect(puck.x-5, puck.y-5, 4, 4); ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
+}
+
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+window.addEventListener('resize', resize);
+window.addEventListener('mousedown', startDrag);
+window.addEventListener('mousemove', moveDrag);
+window.addEventListener('mouseup', endDrag);
+canvas.addEventListener('touchstart', (e)=>{e.preventDefault(); startDrag(e)}, {passive:false});
+canvas.addEventListener('touchmove', (e)=>{e.preventDefault(); moveDrag(e)}, {passive:false});
+window.addEventListener('touchend', endDrag);
+
+init();
+
+</script>
+</body>
+</html>
