@@ -127,6 +127,9 @@
             font-weight: 700;
             font-size: 1.1rem;
             user-select: none;
+            background: white;
+            position: relative;
+            z-index: 2;
         }
 
         .toggle-arrow {
@@ -142,10 +145,17 @@
             transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
             background: #fafafa;
             border-top: 1px solid #f0f0f0;
+            
+            scrollbar-width: thin; 
+            scrollbar-color: #dfe6e9 #fafafa;
         }
 
+        .history-content::-webkit-scrollbar { width: 6px; }
+        .history-content::-webkit-scrollbar-track { background: #fafafa; }
+        .history-content::-webkit-scrollbar-thumb { background-color: #dfe6e9; border-radius: 10px; }
+
         #history-log.expanded .history-content {
-            max-height: 2000px; 
+            max-height: 450px; 
             opacity: 1;
         }
 
@@ -230,12 +240,6 @@
             .log-time { font-size: 0.75rem; min-width: auto; margin-left: 0; color: #333; width: 100%; text-align: center; }
         }
         
-        @media (orientation: landscape) and (max-height: 600px) {
-            #history-log.expanded .history-content {
-                max-height: 300px;
-            }
-        }
-
     </style>
 </head>
 <body>
