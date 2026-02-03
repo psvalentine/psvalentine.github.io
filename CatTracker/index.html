@@ -105,13 +105,59 @@
         #history-log {
             width: 100%; max-width: 600px;
             margin-bottom: var(--spacing);
-            background: white; border-radius: 20px; padding: 20px;
+            background: white; border-radius: 20px; 
+            padding: 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            display: none; 
+            display: none;
+            overflow: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        
+        #history-log:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        #history-log h3 { text-align: center; margin: 0; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; margin-bottom: 5px; }
-        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; text-align: left; }
+        .history-header {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            user-select: none;
+        }
+
+        .toggle-arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+            color: var(--text-sec);
+        }
+
+        .history-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        #history-log.expanded .history-content {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        #history-log.expanded .toggle-arrow {
+            transform: rotate(180deg);
+        }
+        
+        #log-list {
+            padding: 10px 20px 20px 20px;
+        }
+
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; text-align: left; }
         .log-item:last-child { border-bottom: none; }
         .log-time { font-size: 0.9rem; color: #333; font-weight: 600; min-width: 80px; text-align: right; white-space: nowrap; }
         .log-text { font-size: 0.95rem; color: var(--text-main); }
@@ -182,7 +228,6 @@
             .log-item { flex-direction: column; align-items: center; gap: 5px; text-align: center; }
             .log-text { font-size: 0.9rem; text-align: center; }
             .log-time { font-size: 0.75rem; min-width: auto; margin-left: 0; color: #333; width: 100%; text-align: center; }
-            #history-log { padding: 15px; }
         }
 
     </style>
@@ -211,9 +256,13 @@
 
         <div id="cats-container"></div>
         
-        <div id="history-log">
-            <h3>📜 История похождений</h3>
-            <div id="log-list">Загрузка...</div>
+        <div id="history-log" onclick="toggleHistory()">
+            <div class="history-header">
+                📜 История похождений <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="history-content">
+                <div id="log-list">Загрузка...</div>
+            </div>
         </div>
         
         <button class="logout-btn" onclick="logout()">
@@ -242,12 +291,11 @@
         const auth = getAuth(app); 
         const provider = new GoogleAuthProvider();
 
-        // ДОБАВИЛ ДЫРЧИКА СЮДА 👇
         const MY_CATS = ["Федя", "Кузя", "Дырчик"];
         let currentUser = null; 
 
-        const soundOut = new Audio("https://actions.google.com/sounds/v1/doors/deadbolt_lock.ogg"); // Выпустить
-        const soundIn = new Audio("https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg"); // Впустить
+        const soundOut = new Audio("https://actions.google.com/sounds/v1/doors/deadbolt_lock.ogg"); 
+        const soundIn = new Audio("https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg"); 
 
         window.loginWithGoogle = () => {
             signInWithPopup(auth, provider)
@@ -256,6 +304,11 @@
         };
 
         window.logout = () => signOut(auth).then(() => location.reload());
+
+        window.toggleHistory = () => {
+            const historyBlock = document.getElementById('history-log');
+            historyBlock.classList.toggle('expanded');
+        };
 
         onAuthStateChanged(auth, (user) => {
             const loaderDiv = document.getElementById('loader');
@@ -308,9 +361,10 @@
                 const list = document.getElementById('log-list');
                 
                 if (snapshot.empty) {
-                    historyLog.style.display = 'none'; 
+                    historyLog.style.display = 'none';
+                    historyLog.classList.remove('expanded');
                 } else {
-                    historyLog.style.display = 'block'; 
+                    historyLog.style.display = 'block';
                     
                     list.innerHTML = "";
                     snapshot.forEach((doc) => {
@@ -322,7 +376,7 @@
                         list.innerHTML += `
                             <div class="log-item">
                                 <div class="log-text">
-                                    <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "впустил(а)"} 
+                                    <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "запустил(а)"} 
                                     <span style="white-space: nowrap;"><b>${d.cat}</b> ${d.isOutside ? "🌳" : "🏠"}</span>
                                 </div>
                                 <div class="log-time">${dayStr} в ${timeStr}</div>
@@ -422,5 +476,3 @@
     </script>
 </body>
 </html>
-
-
