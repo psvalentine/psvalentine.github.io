@@ -102,7 +102,6 @@
         .outside .main-btn:active { transform: scale(0.98); background: #d63031; }
         .btn-loading { opacity: 0.7; pointer-events: none; }
 
-        /* --- СТИЛИ ДЛЯ ИСТОРИИ (СЛАЙДЕР С ПРОКРУТКОЙ) --- */
         #history-log {
             width: 100%; max-width: 600px;
             margin-bottom: var(--spacing);
@@ -139,7 +138,6 @@
             color: var(--text-sec);
         }
 
-        /* Контейнер списка */
         .history-content {
             max-height: 0;
             opacity: 0;
@@ -293,22 +291,15 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ==========================================
-        // 👇 НАСТРОЙКИ ТЕЛЕГРАМ 👇
-        // ==========================================
-        const TG_BOT_TOKEN = "8493719272:AAECZHw1QKQ6nPxlu1lopPOcALDQpXV3jiA"; // Пример: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+        const TG_BOT_TOKEN = "8493719272:AAECZHw1QKQ6nPxlu1lopPOcALDQpXV3jiA";
         
-        // ID людей, которым отправлять (через запятую)
         const TG_CHAT_IDS = [
             "589123479",
             "802159305",
             "281514391"
         ];
 
-        // Ссылка на ваше приложение (GitHub Pages или где оно лежит)
-        // Нужна, чтобы клик по ссылке открывал приложение
         const APP_URL = "https://psvalentine.github.io/CatTracker/"; 
-        // ==========================================
 
         const firebaseConfig = {
             apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
@@ -343,14 +334,12 @@
             historyBlock.classList.toggle('expanded');
         };
 
-        // --- ФУНКЦИЯ ОТПРАВКИ В ТЕЛЕГРАМ ---
         async function sendTelegramNotification(message) {
             if (!TG_BOT_TOKEN || TG_BOT_TOKEN === "ВАШ_ТОКЕН_ЗДЕСЬ") {
                 console.log("Токен телеграм бота не настроен");
                 return;
             }
 
-            // Проходим по каждому ID и отправляем сообщение
             TG_CHAT_IDS.forEach(chatId => {
                 const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
                 fetch(url, {
@@ -361,8 +350,8 @@
                     body: JSON.stringify({
                         chat_id: chatId,
                         text: message,
-                        parse_mode: 'HTML', // Включаем HTML чтобы работала ссылка и жирный текст
-                        disable_web_page_preview: true // Отключаем превью ссылки чтобы было компактно
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
                     })
                 }).catch(err => console.error("Ошибка отправки в TG:", err));
             });
@@ -492,14 +481,12 @@
                 const now = Date.now();
                 const userName = currentUser.displayName || currentUser.email.split('@')[0];
 
-                // 1. Звук
                 if (newStatus) {
                     soundOut.play().catch(e => console.log("Звук не сработал"));
                 } else {
                     soundIn.play().catch(e => console.log("Звук не сработал"));
                 }
 
-                // 2. Обновляем Firebase
                 await setDoc(doc(db, "status", catName), {
                     isOutside: newStatus, lastChange: now, user: userName
                 });
@@ -507,7 +494,6 @@
                     cat: catName, isOutside: newStatus, user: userName, timestamp: now
                 });
 
-                // 3. Отправляем в Телеграм
                 const dateObj = new Date(now);
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const dayStr = dateObj.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
@@ -515,7 +501,6 @@
                 const actionStr = newStatus ? "Выпустил(а)" : "Впустил(а)";
                 const emoji = newStatus ? "🌳" : "🏠";
                 
-                // Формируем сообщение
                 const tgMessage = `<b>${userName}</b> ${actionStr}: <b>${catName}</b> ${emoji}\n${dayStr} в ${timeStr}\n\n<a href="${APP_URL}">Кото-Трекер</a>`;
 
                 sendTelegramNotification(tgMessage);
@@ -548,6 +533,3 @@
     </script>
 </body>
 </html>
-
-
-
