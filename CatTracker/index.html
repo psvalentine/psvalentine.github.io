@@ -291,6 +291,12 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        const ALLOWED_EMAILS = [
+            'psvalentyn@gmail.com',
+            'tianna.g925@gmail.com',
+            'r97r97r97@gmail.com'
+        ];
+
         const TG_BOT_TOKEN = "8493719272:AAECZHw1QKQ6nPxlu1lopPOcALDQpXV3jiA"; 
         
         const FAMILY_MEMBERS = [
@@ -335,7 +341,6 @@
         };
 
         async function sendTelegramNotification(message, senderGoogleName) {
-
             if (!TG_BOT_TOKEN || TG_BOT_TOKEN === "ВАШ_ТОКЕН_ЗДЕСЬ") {
                 console.log("Токен телеграм бота не настроен");
                 return;
@@ -371,6 +376,12 @@
             loaderDiv.style.display = 'none';
 
             if (user) {
+                if (!ALLOWED_EMAILS.includes(user.email)) {
+                    alert("⛔️ Доступ запрещен!\nЭтот аккаунт (" + user.email + ") не имеет доступа.");
+                    signOut(auth);
+                    return;
+                }
+
                 currentUser = user;
                 setupDiv.style.display = 'none';
                 appDiv.style.display = 'flex';
