@@ -440,7 +440,7 @@
                         list.innerHTML += `
                             <div class="log-item">
                                 <div class="log-text">
-                                    <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "запустил(а)"} 
+                                    <b>${d.user}</b> ${d.isOutside ? "выпустил(а)" : "впустил(а)"} 
                                     <span style="white-space: nowrap;"><b>${d.cat}</b> ${d.isOutside ? "🌳" : "🏠"}</span>
                                 </div>
                                 <div class="log-time">${dayStr} в ${timeStr}</div>
@@ -515,7 +515,7 @@
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const dayStr = dateObj.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
                 
-                const actionStr = newStatus ? "Выпустил(а)" : "Запустил(а)";
+                const actionStr = newStatus ? "Выпустил(а)" : "Впустил(а)";
                 const emoji = newStatus ? "🌳" : "🏠";
                 
                 const tgMessage = `<b>${userName}</b> ${actionStr}: <b>${catName}</b> ${emoji}\n${dayStr} в ${timeStr}\n\n<a href="${APP_URL}">Кото-Трекер</a>`;
@@ -550,3 +550,4 @@
     </script>
 </body>
 </html>
+
