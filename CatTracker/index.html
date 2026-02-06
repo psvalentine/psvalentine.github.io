@@ -102,7 +102,6 @@
         .outside .main-btn:active { transform: scale(0.98); background: #d63031; }
         .btn-loading { opacity: 0.7; pointer-events: none; }
 
-        /* --- СТИЛИ ДЛЯ ИСТОРИИ (СЛАЙДЕР С ПРОКРУТКОЙ) --- */
         #history-log {
             width: 100%; max-width: 600px;
             margin-bottom: var(--spacing);
@@ -292,22 +291,15 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ==========================================
-        // 👇 НАСТРОЙКИ СЕМЬИ И ТЕЛЕГРАМ 👇
-        // ==========================================
         const TG_BOT_TOKEN = "8493719272:AAECZHw1QKQ6nPxlu1lopPOcALDQpXV3jiA"; 
         
-        // ВНИМАНИЕ: Заполните этот список точно как в Google и @userinfobot
-        // Это нужно, чтобы приложение знало, кому НЕ отправлять (тому, кто нажал)
         const FAMILY_MEMBERS = [
-            { googleName: "ps valentyn", tgId: "589123479" }, // Ваш Google ник и ID
-            { googleName: "Татьяна Иванова", tgId: "802159305" }, // Мама
-            { googleName: "Serg Ivanov", tgId: "281514391" }  // Папа
+            { googleName: "ps valentyn", tgId: "589123479" },
+            { googleName: "Татьяна Иванова", tgId: "802159305" },
+            { googleName: "Serg Ivanov", tgId: "281514391" } 
         ];
 
-        // Ссылка на ваше приложение (со слэшем в конце!)
         const APP_URL = "https://psvalentyn.github.io/CatTracker/"; 
-        // ==========================================
 
         const firebaseConfig = {
             apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
@@ -342,20 +334,16 @@
             historyBlock.classList.toggle('expanded');
         };
 
-        // --- ФУНКЦИЯ ОТПРАВКИ В ТЕЛЕГРАМ (УМНАЯ) ---
         async function sendTelegramNotification(message, senderGoogleName) {
             if (!TG_BOT_TOKEN || TG_BOT_TOKEN === "8493719272:AAECZHw1QKQ6nPxlu1lopPOcALDQpXV3jiA") {
                 console.log("Токен телеграм бота не настроен");
                 return;
             }
 
-            // 1. Ищем Telegram ID того, кто нажал кнопку
             const senderInfo = FAMILY_MEMBERS.find(member => member.googleName === senderGoogleName);
             const senderTgId = senderInfo ? senderInfo.tgId : null;
 
-            // 2. Пробегаем по списку семьи и отправляем всем, КРОМЕ отправителя
             FAMILY_MEMBERS.forEach(member => {
-                // Если ID совпадает с ID отправителя — пропускаем (не шлем уведомление)
                 if (senderTgId && member.tgId === senderTgId) {
                     return; 
                 }
@@ -498,14 +486,12 @@
                 const now = Date.now();
                 const userName = currentUser.displayName || currentUser.email.split('@')[0];
 
-                // 1. Звук
                 if (newStatus) {
                     soundOut.play().catch(e => console.log("Звук не сработал"));
                 } else {
                     soundIn.play().catch(e => console.log("Звук не сработал"));
                 }
-
-                // 2. Обновляем Firebase
+       
                 await setDoc(doc(db, "status", catName), {
                     isOutside: newStatus, lastChange: now, user: userName
                 });
@@ -513,7 +499,6 @@
                     cat: catName, isOutside: newStatus, user: userName, timestamp: now
                 });
 
-                // 3. Отправляем в Телеграм (умная отправка)
                 const dateObj = new Date(now);
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const dayStr = dateObj.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
@@ -523,7 +508,6 @@
                 
                 const tgMessage = `<b>${userName}</b> ${actionStr}: <b>${catName}</b> ${emoji}\n${dayStr} в ${timeStr}\n\n<a href="${APP_URL}">Кото-Трекер</a>`;
 
-                // Передаем также имя автора (userName), чтобы функция знала, кого исключить
                 sendTelegramNotification(tgMessage, userName);
 
             } catch (e) {
