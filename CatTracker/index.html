@@ -410,7 +410,7 @@
                                 <span class="status-badge" id="badge-${cat}">Дома</span>
                             </div>
                             <div class="timer-display" id="timer-${cat}" style="display: none;">00:00:00</div>
-                            <div class="meta-info" id="info-${cat}">Нет данных</div>
+                            <div class="meta-info" id="info-${cat}">⏳ Секунду...</div>
                             <button class="main-btn" id="btn-${cat}" onclick="handleToggle('${cat}')">
                                 Выпустить гулять 🌳
                             </button>
@@ -515,7 +515,7 @@
                 const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const dayStr = dateObj.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
                 
-                const actionStr = newStatus ? "Выпустил(а)" : "Впустил(а)";
+                const actionStr = newStatus ? "выпустил(а)" : "впустил(а)";
                 const emoji = newStatus ? "🌳" : "🏠";
                 
                 const tgMessage = `<b>${userName}</b> ${actionStr}: <b>${catName}</b> ${emoji}\n${dayStr} в ${timeStr}\n\n<a href="${APP_URL}">Кото-Трекер</a>`;
