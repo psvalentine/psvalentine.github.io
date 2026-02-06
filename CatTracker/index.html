@@ -335,6 +335,7 @@
         };
 
         async function sendTelegramNotification(message, senderGoogleName) {
+
             if (!TG_BOT_TOKEN || TG_BOT_TOKEN === "ВАШ_ТОКЕН_ЗДЕСЬ") {
                 console.log("Токен телеграм бота не настроен");
                 return;
@@ -491,7 +492,7 @@
                 } else {
                     soundIn.play().catch(e => console.log("Звук не сработал"));
                 }
-       
+
                 await setDoc(doc(db, "status", catName), {
                     isOutside: newStatus, lastChange: now, user: userName
                 });
