@@ -102,6 +102,7 @@
         .outside .main-btn:active { transform: scale(0.98); background: #d63031; }
         .btn-loading { opacity: 0.7; pointer-events: none; }
 
+        /* --- СТИЛИ ДЛЯ ИСТОРИИ (СЛАЙДЕР С ПРОКРУТКОЙ) --- */
         #history-log {
             width: 100%; max-width: 600px;
             margin-bottom: var(--spacing);
@@ -138,6 +139,7 @@
             color: var(--text-sec);
         }
 
+        /* Контейнер списка */
         .history-content {
             max-height: 0;
             opacity: 0;
@@ -145,7 +147,6 @@
             transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
             background: #fafafa;
             border-top: 1px solid #f0f0f0;
-            
             scrollbar-width: thin; 
             scrollbar-color: #dfe6e9 #fafafa;
         }
@@ -230,7 +231,6 @@
         }
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
 
-
         @media (max-width: 480px) {
             .cat-name { font-size: 1.6rem; }
             .timer-display { font-size: 2rem; }
@@ -240,6 +240,12 @@
             .log-time { font-size: 0.75rem; min-width: auto; margin-left: 0; color: #333; width: 100%; text-align: center; }
         }
         
+        @media (orientation: landscape) and (max-height: 600px) {
+            #history-log.expanded .history-content {
+                max-height: 300px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -287,6 +293,23 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // ==========================================
+        // 👇 НАСТРОЙКИ ТЕЛЕГРАМ 👇
+        // ==========================================
+        const TG_BOT_TOKEN = "ВАШ_ТОКЕН_ЗДЕСЬ"; // Пример: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+        
+        // ID людей, которым отправлять (через запятую)
+        const TG_CHAT_IDS = [
+            "589123479", // Вы
+            "589123479", // Мама
+            "589123479"  // Папа
+        ];
+
+        // Ссылка на ваше приложение (GitHub Pages или где оно лежит)
+        // Нужна, чтобы клик по ссылке открывал приложение
+        const APP_URL = "https://psvalentine.github.io/CatTracker/"; 
+        // ==========================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyCfgJ44i1k7eU_HvH2S_yooGckivopXgJo",
             authDomain: "cattracker-b813e.firebaseapp.com",
@@ -319,6 +342,31 @@
             const historyBlock = document.getElementById('history-log');
             historyBlock.classList.toggle('expanded');
         };
+
+        // --- ФУНКЦИЯ ОТПРАВКИ В ТЕЛЕГРАМ ---
+        async function sendTelegramNotification(message) {
+            if (!TG_BOT_TOKEN || TG_BOT_TOKEN === "ВАШ_ТОКЕН_ЗДЕСЬ") {
+                console.log("Токен телеграм бота не настроен");
+                return;
+            }
+
+            // Проходим по каждому ID и отправляем сообщение
+            TG_CHAT_IDS.forEach(chatId => {
+                const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML', // Включаем HTML чтобы работала ссылка и жирный текст
+                        disable_web_page_preview: true // Отключаем превью ссылки чтобы было компактно
+                    })
+                }).catch(err => console.error("Ошибка отправки в TG:", err));
+            });
+        }
 
         onAuthStateChanged(auth, (user) => {
             const loaderDiv = document.getElementById('loader');
@@ -444,20 +492,34 @@
                 const now = Date.now();
                 const userName = currentUser.displayName || currentUser.email.split('@')[0];
 
-
+                // 1. Звук
                 if (newStatus) {
                     soundOut.play().catch(e => console.log("Звук не сработал"));
                 } else {
-
                     soundIn.play().catch(e => console.log("Звук не сработал"));
                 }
 
+                // 2. Обновляем Firebase
                 await setDoc(doc(db, "status", catName), {
                     isOutside: newStatus, lastChange: now, user: userName
                 });
                 await addDoc(collection(db, "history"), {
                     cat: catName, isOutside: newStatus, user: userName, timestamp: now
                 });
+
+                // 3. Отправляем в Телеграм
+                const dateObj = new Date(now);
+                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dayStr = dateObj.toLocaleDateString([], {day: 'numeric', month: 'numeric'});
+                
+                const actionStr = newStatus ? "Выпустил(а)" : "Впустил(а)";
+                const emoji = newStatus ? "🌳" : "🏠";
+                
+                // Формируем сообщение
+                const tgMessage = `<b>${userName}</b> ${actionStr}: <b>${catName}</b> ${emoji}\n${dayStr} в ${timeStr}\n\n<a href="${APP_URL}">Кото-Трекер</a>`;
+
+                sendTelegramNotification(tgMessage);
+
             } catch (e) {
                 alert("Ошибка: " + e.message);
                 btn.innerText = oldText;
