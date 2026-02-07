@@ -389,7 +389,7 @@
                 const displayName = user.displayName || user.email.split('@')[0];
                 document.getElementById('welcome-text').innerHTML = `
                     <img src="${user.photoURL}" class="user-avatar"> 
-                    <span>Хозяин: <b>${displayName}</b></span>
+                    <b>${displayName}</b>
                 `;
                 initAppListeners(); 
             } else {
