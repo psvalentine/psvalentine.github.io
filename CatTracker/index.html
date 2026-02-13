@@ -419,7 +419,7 @@
                 });
             }
 
-            const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(15));
+            const q = query(collection(db, "history"), orderBy("timestamp", "desc"), limit(30));
             onSnapshot(q, (snapshot) => {
                 const historyLog = document.getElementById('history-log');
                 const list = document.getElementById('log-list');
